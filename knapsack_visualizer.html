@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배낭 문제 DP 시각화</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #161720;
+    --surface2: #1e2030;
+    --surface3: #252840;
+    --border: #2e3150;
+    --text: #cdd6f4;
+    --muted: #6c7086;
+    --accent: #89b4fa;
+    --purple: #cba6f7;
+    --teal: #94e2d5;
+    --yellow: #f9e2af;
+    --red: #f38ba8;
+    --green: #a6e3a1;
+    --orange: #fab387;
+
+    --hl-cur: #cba6f720;
+    --hl-cur-border: #cba6f7;
+    --hl-ref: #94e2d520;
+    --hl-ref-border: #94e2d5;
+    --hl-cmp: #f9e2af20;
+    --hl-cmp-border: #f9e2af;
+    --hl-done: #a6e3a115;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-title {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* CODE PANEL */
+  .code-block {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 2;
+    padding: 1rem 0;
+    overflow-x: auto;
+  }
+
+  .code-line {
+    display: flex;
+    align-items: stretch;
+    padding: 0 1.2rem;
+    transition: background 0.15s;
+    white-space: pre;
+    position: relative;
+  }
+
+  .code-line .ln {
+    color: var(--muted);
+    width: 2rem;
+    flex-shrink: 0;
+    user-select: none;
+    font-size: 0.72rem;
+    padding-top: 1px;
+  }
+
+  .code-line .src {
+    flex: 1;
+  }
+
+  .code-line.active {
+    background: #cba6f718;
+    border-left: 3px solid var(--purple);
+    padding-left: calc(1.2rem - 3px);
+  }
+
+  .kw { color: var(--red); }
+  .fn { color: var(--accent); }
+  .va { color: var(--teal); }
+  .nu { color: var(--orange); }
+  .cm { color: var(--muted); font-style: italic; }
+  .st { color: var(--green); }
+  .op { color: var(--purple); }
+
+  /* CARGO PANEL */
+  .cargo-list {
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cargo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+  }
+
+  .cargo-item.active-item {
+    border-color: var(--purple);
+    background: var(--hl-cur);
+  }
+
+  .cargo-idx {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    width: 1.5rem;
+  }
+
+  .cargo-name { font-weight: 500; flex: 1; }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .badge-val { background: #a6e3a122; color: var(--green); }
+  .badge-wt { background: #fab38722; color: var(--orange); }
+
+  /* TABLE PANEL */
+  .table-wrap {
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    width: 100%;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--muted);
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    font-weight: 500;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: background 0.2s, color 0.2s;
+    color: var(--muted);
+    min-width: 38px;
+  }
+
+  td.filled { color: var(--text); }
+
+  td.cell-cur {
+    background: var(--hl-cur);
+    border-color: var(--hl-cur-border);
+    color: var(--purple);
+    font-weight: 700;
+  }
+
+  td.cell-ref {
+    background: var(--hl-ref);
+    border-color: var(--hl-ref-border);
+    color: var(--teal);
+    font-weight: 700;
+  }
+
+  td.cell-cmp {
+    background: var(--hl-cmp);
+    border-color: var(--hl-cmp-border);
+    color: var(--yellow);
+    font-weight: 700;
+  }
+
+  td.cell-done {
+    background: var(--hl-done);
+    color: var(--text);
+  }
+
+  .row-label {
+    text-align: left !important;
+    color: var(--text) !important;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    background: var(--surface2);
+  }
+
+  /* EXPLANATION PANEL */
+  .explain-box {
+    padding: 1rem 1.2rem;
+    min-height: 200px;
+  }
+
+  .explain-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .explain-line:last-child { border-bottom: none; }
+
+  .explain-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  .icon-cur { background: var(--hl-cur-border); color: #0e0f14; }
+  .icon-ref { background: var(--hl-ref-border); color: #0e0f14; }
+  .icon-cmp { background: var(--hl-cmp-border); color: #0e0f14; }
+  .icon-res { background: var(--green); color: #0e0f14; }
+
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem 1.2rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.8rem;
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: var(--surface3);
+    color: var(--text);
+    transition: all 0.15s;
+  }
+
+  button:hover { background: var(--border); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  button.primary {
+    background: var(--purple);
+    color: #0e0f14;
+    border-color: var(--purple);
+    font-weight: 700;
+  }
+
+  button.primary:hover { opacity: 0.85; }
+
+  .step-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .speed-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  select {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.78rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface3);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .leg {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .leg-dot {
+    width: 10px; height: 10px; border-radius: 2px;
+  }
+
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--purple);
+    transition: width 0.2s;
+  }
+
+  .result-banner {
+    display: none;
+    padding: 0.8rem 1.2rem;
+    background: #a6e3a115;
+    border-top: 1px solid var(--green);
+    font-size: 0.85rem;
+    color: var(--green);
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<h1>배낭 문제 (0/1 Knapsack) — DP Tabulation</h1>
+<p class="subtitle">코드 실행 흐름을 따라가며 DP 테이블이 채워지는 과정을 단계별로 확인하세요.</p>
+
+<div class="layout">
+
+  <!-- LEFT: CODE + CARGO -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+    <div class="panel">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--red)"></span>
+        <span class="dot" style="background:var(--yellow)"></span>
+        <span class="dot" style="background:var(--green)"></span>
+        &nbsp;knapsack.py
+      </div>
+      <div class="code-block" id="codeBlock"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--orange)"></span>
+        &nbsp;cargo (물건 목록)
+      </div>
+      <div class="cargo-list" id="cargoList"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: TABLE + EXPLAIN -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+    <div class="panel">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--teal)"></span>
+        &nbsp;pack 테이블
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--hl-cur-border)"></div>현재 계산 칸</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--hl-ref-border)"></div>pack[i-1][c-무게]</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--hl-cmp-border)"></div>pack[i-1][c]</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="table-wrap">
+        <table id="dpTable"></table>
+      </div>
+      <div class="result-banner" id="resultBanner"></div>
+    </div>
+
+    <div class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-title">
+        <span class="dot" style="background:var(--purple)"></span>
+        &nbsp;이 단계에서 무슨 일이?
+      </div>
+      <div class="explain-box" id="explainBox" style="flex:1;">
+        <div class="explain-line">
+          <div class="explain-icon icon-res">→</div>
+          <div>시작 버튼을 눌러 단계별 실행을 시작하세요.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="btnReset" onclick="reset()">처음으로</button>
+        <button id="btnPrev" onclick="stepDir(-1)" disabled>← 이전</button>
+        <button class="primary" id="btnNext" onclick="stepDir(1)">다음 →</button>
+        <label class="speed-label">자동재생</label>
+        <select id="speedSel">
+          <option value="800">느리게</option>
+          <option value="400" selected>보통</option>
+          <option value="150">빠르게</option>
+        </select>
+        <button id="btnPlay" onclick="togglePlay()">▶ 재생</button>
+        <span class="step-counter" id="stepCounter">0 / 0</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const cargo = [
+  { name: "노트북", val: 10, wt: 6 },
+  { name: "카메라", val: 6,  wt: 4 },
+  { name: "책",    val: 3,  wt: 2 },
+  { name: "신발",  val: 5,  wt: 3 },
+];
+const CAPA = 10;
+const N = cargo.length;
+
+const CODE_LINES = [
+  { code: `<span class="kw">def</span> <span class="fn">knapsack</span>(<span class="va">cargo</span>):` },
+  { code: `  <span class="va">capa</span> <span class="op">=</span> <span class="nu">15</span>  <span class="cm"># 배낭의 최대 용량</span>` },
+  { code: `  <span class="va">pack</span> <span class="op">=</span> []  <span class="cm"># DP 테이블 (2D 리스트)</span>` },
+  { code: `` },
+  { code: `  <span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(<span class="va">cargo</span>) <span class="op">+</span> <span class="nu">1</span>):       <span class="cm"># i: 물건 인덱스 (0 = 물건 없음)</span>` },
+  { code: `    <span class="va">pack</span>.<span class="fn">append</span>([])                    <span class="cm"># i번째 행 추가</span>` },
+  { code: `` },
+  { code: `    <span class="kw">for</span> <span class="va">c</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="va">capa</span> <span class="op">+</span> <span class="nu">1</span>):         <span class="cm"># c: 현재 고려 중인 배낭 용량 (0 ~ capa)</span>` },
+  { code: `` },
+  { code: `      <span class="kw">if</span> <span class="va">i</span> <span class="op">==</span> <span class="nu">0</span> <span class="kw">or</span> <span class="va">c</span> <span class="op">==</span> <span class="nu">0</span>:` },
+  { code: `        <span class="cm"># 물건이 없거나 용량이 0이면 가치는 항상 0 (베이스케이스)</span>` },
+  { code: `        <span class="va">pack</span>[<span class="va">i</span>].<span class="fn">append</span>(<span class="nu">0</span>)` },
+  { code: `` },
+  { code: `      <span class="kw">elif</span> <span class="va">cargo</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="nu">1</span>] <span class="op">&lt;=</span> <span class="va">c</span>:` },
+  { code: `        <span class="cm"># 현재 물건의 무게(cargo[i-1][1])가 현재 용량(c) 이하 → 배낭에 넣을 수 있음</span>` },
+  { code: `        <span class="va">pack</span>[<span class="va">i</span>].<span class="fn">append</span>(<span class="fn">max</span>(` },
+  { code: `          <span class="va">cargo</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="nu">0</span>] <span class="op">+</span> <span class="va">pack</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="va">c</span> <span class="op">-</span> <span class="va">cargo</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="nu">1</span>]],` },
+  { code: `          <span class="cm"># 현재 물건을 넣는 경우:</span>` },
+  { code: `          <span class="cm">#   현재 물건의 가치(cargo[i-1][0])</span>` },
+  { code: `          <span class="cm">#   + 나머지 용량(c - 무게)으로 이전 물건들을 채운 최적값</span>` },
+  { code: `          <span class="va">pack</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="va">c</span>]` },
+  { code: `          <span class="cm"># 현재 물건을 안 넣는 경우:</span>` },
+  { code: `          <span class="cm">#   이전 물건들만으로 용량 c를 채운 최적값</span>` },
+  { code: `        ))` },
+  { code: `` },
+  { code: `      <span class="kw">else</span>:` },
+  { code: `        <span class="cm"># 현재 물건의 무게가 현재 용량보다 큼 → 넣을 수 없음</span>` },
+  { code: `        <span class="cm"># 이전 행(물건 제외)의 값을 그대로 가져옴</span>` },
+  { code: `        <span class="va">pack</span>[<span class="va">i</span>].<span class="fn">append</span>(<span class="va">pack</span>[<span class="va">i</span><span class="op">-</span><span class="nu">1</span>][<span class="va">c</span>])` },
+  { code: `` },
+  { code: `  <span class="kw">return</span> <span class="va">pack</span>[<span class="op">-</span><span class="nu">1</span>][<span class="op">-</span><span class="nu">1</span>]  <span class="cm"># 마지막 행, 마지막 열 = 모든 물건 고려 + 최대 용량에서의 최적값</span>` },
+];
+
+const pack = [];
+for (let i = 0; i <= N; i++) {
+  pack.push([]);
+  for (let c = 0; c <= CAPA; c++) {
+    if (i === 0 || c === 0) { pack[i].push(0); continue; }
+    const item = cargo[i-1];
+    if (item.wt <= c) {
+      pack[i].push(Math.max(item.val + pack[i-1][c - item.wt], pack[i-1][c]));
+    } else {
+      pack[i].push(pack[i-1][c]);
+    }
+  }
+}
+
+const steps = [];
+for (let i = 0; i <= N; i++) {
+  steps.push({ type: 'row_start', i });
+  for (let c = 0; c <= CAPA; c++) {
+    const item = i >= 1 ? cargo[i-1] : null;
+    const isBase = (i === 0 || c === 0);
+    const canFit = item && !isBase && item.wt <= c;
+    const cantFit = item && !isBase && item.wt > c;
+    steps.push({ type: 'cell', i, c, isBase, canFit, cantFit, item });
+  }
+}
+steps.push({ type: 'done' });
+
+let cur = 0;
+let playTimer = null;
+let cellState = {};
+
+function cellKey(i, c) { return `${i}_${c}`; }
+
+function renderCode(activeLines) {
+  const el = document.getElementById('codeBlock');
+  el.innerHTML = CODE_LINES.map((line, idx) => {
+    const ln = idx + 1;
+    const active = activeLines.includes(ln);
+    return `<div class="code-line${active ? ' active' : ''}">
+      <span class="ln">${ln}</span>
+      <span class="src">${line.code || ' '}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderCargo(activeI) {
+  const el = document.getElementById('cargoList');
+  el.innerHTML = cargo.map((item, idx) => `
+    <div class="cargo-item${activeI === idx + 1 ? ' active-item' : ''}">
+      <span class="cargo-idx">[${idx}]</span>
+      <span class="cargo-name">${item.name}</span>
+      <span class="badge badge-val">가치 ${item.val}</span>
+      <span class="badge badge-wt">무게 ${item.wt}kg</span>
+    </div>
+  `).join('');
+}
+
+function renderTable(step) {
+  const el = document.getElementById('dpTable');
+  let html = '<tr><th>i \\ c</th>';
+  for (let c = 0; c <= CAPA; c++) html += `<th>${c}kg</th>`;
+  html += '</tr>';
+
+  for (let i = 0; i <= N; i++) {
+    const label = i === 0 ? '없음' : `${cargo[i-1].name}<br><small style="color:var(--muted);font-size:0.65rem;">(w${cargo[i-1].wt}/v${cargo[i-1].val})</small>`;
+    html += `<tr><td class="row-label">${label}</td>`;
+    for (let c = 0; c <= CAPA; c++) {
+      const key = cellKey(i, c);
+      const val = cellState[key];
+      let cls = '';
+      if (step && step.type === 'cell' && step.i === i && step.c === c) {
+        cls = 'cell-cur';
+      } else if (step && step.type === 'cell' && step.canFit && i === step.i - 1 && c === step.c - step.item.wt) {
+        cls = 'cell-ref';
+      } else if (step && step.type === 'cell' && step.i >= 1 && i === step.i - 1 && c === step.c) {
+        cls = 'cell-cmp';
+      } else if (val !== undefined) {
+        cls = 'cell-done filled';
+      }
+      const display = val !== undefined ? val : (cls === 'cell-cur' ? '?' : '');
+      html += `<td class="${cls}">${display}</td>`;
+    }
+    html += '</tr>';
+  }
+  el.innerHTML = html;
+}
+
+function renderExplain(step) {
+  const el = document.getElementById('explainBox');
+  if (!step) {
+    el.innerHTML = `<div class="explain-line"><div class="explain-icon icon-res">→</div><div>시작 버튼을 눌러 단계별 실행을 시작하세요.</div></div>`;
+    return;
+  }
+
+  if (step.type === 'row_start') {
+    const item = step.i === 0 ? null : cargo[step.i - 1];
+    el.innerHTML = item
+      ? `<div class="explain-line">
+           <div class="explain-icon icon-cur">i</div>
+           <div><strong>i = ${step.i} 행 시작</strong> — 이번 행에서는 <span class="mono" style="color:var(--purple)">${item.name}</span>을 넣을지 말지 결정합니다.<br>
+           <span style="color:var(--muted);font-size:0.78rem;">가치 ${item.val} / 무게 ${item.wt}kg</span></div>
+         </div>`
+      : `<div class="explain-line">
+           <div class="explain-icon icon-res">0</div>
+           <div><strong>i = 0 행 (베이스 행)</strong> — 물건이 하나도 없는 경우입니다.<br>
+           <span style="color:var(--muted);font-size:0.78rem;">어떤 용량이든 가치는 0이 됩니다.</span></div>
+         </div>`;
+    return;
+  }
+
+  if (step.type === 'done') {
+    el.innerHTML = `
+      <div class="explain-line">
+        <div class="explain-icon icon-res">✓</div>
+        <div><strong>모든 칸 완성!</strong><br>
+        <span class="mono">pack[${N}][${CAPA}]</span> = 물건 ${N}개 전부 고려 + 최대 용량 ${CAPA}kg → 최적 가치 <strong style="color:var(--green);font-size:1.1em">${pack[N][CAPA]}</strong></div>
+      </div>`;
+    document.getElementById('resultBanner').style.display = 'block';
+    document.getElementById('resultBanner').textContent = `최적 가치: pack[${N}][${CAPA}] = ${pack[N][CAPA]}`;
+    return;
+  }
+
+  const { i, c, isBase, canFit, cantFit, item } = step;
+  let html = '';
+
+  html += `<div class="explain-line">
+    <div class="explain-icon icon-cur">▶</div>
+    <div>
+      <strong style="color:var(--purple)">pack[${i}][${c}]</strong> 계산 중
+      <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">→ "${item ? item.name : '물건 없음'}" 고려, 배낭 용량 ${c}kg</span>
+    </div>
+  </div>`;
+
+  if (isBase) {
+    const reason = i === 0 ? '물건이 0개 (아무것도 없음)' : `배낭 용량이 0kg`;
+    html += `
+    <div class="explain-line">
+      <div class="explain-icon" style="background:var(--muted);color:#0e0f14;font-size:0.65rem;">조건</div>
+      <div><code style="color:var(--yellow)">if i==0 or c==0</code> 조건 해당<br>
+      <span style="color:var(--muted);font-size:0.78rem;">${reason} → 어떤 물건도 담을 수 없으므로 가치 = <strong style="color:var(--green)">0</strong></span></div>
+    </div>`;
+  } else if (canFit) {
+    const srcC = c - item.wt;
+    const withItem = item.val + pack[i-1][srcC];
+    const withoutItem = pack[i-1][c];
+    const best = Math.max(withItem, withoutItem);
+    const chosen = withItem >= withoutItem ? '넣기' : '안 넣기';
+    const chosenColor = withItem >= withoutItem ? 'var(--teal)' : 'var(--yellow)';
+    html += `
+    <div class="explain-line">
+      <div class="explain-icon" style="background:var(--muted);color:#0e0f14;font-size:0.65rem;">조건</div>
+      <div><code style="color:var(--yellow)">${item.name} 무게(${item.wt}kg) ≤ 용량(${c}kg)</code> → 넣는 게 가능!</div>
+    </div>
+    <div class="explain-line">
+      <div class="explain-icon icon-ref">A</div>
+      <div>
+        <strong style="color:var(--teal)">넣는다면?</strong><br>
+        <span style="font-size:0.8rem;">
+          ${item.name} 가치(<strong>${item.val}</strong>)
+          + 남은 공간 ${c}-${item.wt}=<strong>${srcC}kg</strong>에서 이전 물건들로 채운 최적값(<strong>pack[${i-1}][${srcC}] = ${pack[i-1][srcC]}</strong>)<br>
+          <span style="color:var(--teal)">= ${item.val} + ${pack[i-1][srcC]} = <strong>${withItem}</strong></span>
+        </span>
+      </div>
+    </div>
+    <div class="explain-line">
+      <div class="explain-icon icon-cmp">B</div>
+      <div>
+        <strong style="color:var(--yellow)">안 넣는다면?</strong><br>
+        <span style="font-size:0.8rem;">
+          이전 행에서 용량 ${c}kg일 때의 최적값 그대로<br>
+          <span style="color:var(--yellow)">pack[${i-1}][${c}] = <strong>${withoutItem}</strong></span>
+        </span>
+      </div>
+    </div>
+    <div class="explain-line">
+      <div class="explain-icon icon-res">✓</div>
+      <div>
+        max(<span style="color:var(--teal)">A=${withItem}</span>, <span style="color:var(--yellow)">B=${withoutItem}</span>) = <strong style="color:var(--green);font-size:1.05em">${best}</strong>
+        &nbsp;→&nbsp;<strong style="color:${chosenColor}">${chosen}</strong> 선택
+      </div>
+    </div>`;
+  } else {
+    html += `
+    <div class="explain-line">
+      <div class="explain-icon" style="background:var(--red);color:#0e0f14;">✕</div>
+      <div>
+        <code style="color:var(--red)">${item.name} 무게(${item.wt}kg) &gt; 용량(${c}kg)</code><br>
+        <span style="color:var(--muted);font-size:0.78rem;">배낭에 들어가지 않음. 선택지가 없습니다.</span>
+      </div>
+    </div>
+    <div class="explain-line">
+      <div class="explain-icon icon-cmp">↑</div>
+      <div>
+        이 물건 없이 용량 ${c}kg일 때의 최적값을 그대로 가져옴<br>
+        <span style="color:var(--yellow)">pack[${i-1}][${c}] = <strong>${pack[i-1][c]}</strong></span>
+        <span style="color:var(--muted);font-size:0.78rem;margin-left:6px;">(위 행 복사)</span>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function getActiveLines(step) {
+  if (!step) return [];
+  if (step.type === 'row_start') return [5, 6];
+  if (step.type === 'done') return [30];
+  const { isBase, canFit, cantFit } = step;
+  if (isBase) return [8, 10, 11, 12];
+  if (canFit) return [8, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+  if (cantFit) return [8, 13, 14, 25, 26, 27, 28, 29];
+  return [];
+}
+
+function applyStep(step) {
+  if (step && step.type === 'cell') {
+    const key = cellKey(step.i, step.c);
+    cellState[key] = pack[step.i][step.c];
+  }
+}
+
+function render() {
+  const step = steps[cur] || null;
+  const prevStep = cur > 0 ? steps[cur - 1] : null;
+
+  renderCode(getActiveLines(step));
+  renderCargo(step && step.i ? step.i : 0);
+  renderTable(step);
+  renderExplain(step);
+
+  const pct = steps.length > 1 ? Math.round((cur / (steps.length - 1)) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stepCounter').textContent = `${cur + 1} / ${steps.length}`;
+  document.getElementById('btnPrev').disabled = cur === 0;
+  document.getElementById('btnNext').disabled = cur === steps.length - 1;
+
+  if (step && step.type !== 'done') {
+    document.getElementById('resultBanner').style.display = 'none';
+  }
+}
+
+function stepDir(d) {
+  if (d > 0 && cur < steps.length - 1) {
+    cur++;
+    applyStep(steps[cur]);
+  } else if (d < 0 && cur > 0) {
+    cur--;
+    rebuildState();
+  }
+  render();
+}
+
+function rebuildState() {
+  cellState = {};
+  for (let s = 0; s <= cur; s++) {
+    const st = steps[s];
+    if (st && st.type === 'cell') {
+      cellState[cellKey(st.i, st.c)] = pack[st.i][st.c];
+    }
+  }
+}
+
+function reset() {
+  cur = 0;
+  cellState = {};
+  stopPlay();
+  document.getElementById('resultBanner').style.display = 'none';
+  render();
+}
+
+function togglePlay() {
+  if (playTimer) { stopPlay(); return; }
+  document.getElementById('btnPlay').textContent = '⏸ 정지';
+  const speed = parseInt(document.getElementById('speedSel').value);
+  playTimer = setInterval(() => {
+    if (cur >= steps.length - 1) { stopPlay(); return; }
+    cur++;
+    applyStep(steps[cur]);
+    render();
+  }, speed);
+}
+
+function stopPlay() {
+  clearInterval(playTimer);
+  playTimer = null;
+  document.getElementById('btnPlay').textContent = '▶ 재생';
+}
+
+function initTable() {
+  renderCode([]);
+  renderCargo(0);
+  renderTable(null);
+  document.getElementById('stepCounter').textContent = `1 / ${steps.length}`;
+}
+
+initTable();
+renderExplain(null);
+</script>
+</body>
+</html>
