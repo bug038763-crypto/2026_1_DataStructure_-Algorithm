@@ -91,7 +91,7 @@ function App() {
       
       <header>
         <h1>2026 1학기 알고리즘 돌아보기</h1>
-        <a href="#" className="github-btn" onClick={(e) => { e.preventDefault(); alert('배포 후 설정될 GitHub 링크입니다.');}}>GitHub Repository</a>
+        <a href="https://github.com/bug038763-crypto/2026_1_DataStructure_-Algorithm" className="github-btn" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
       </header>
 
       <div className="main-content">
