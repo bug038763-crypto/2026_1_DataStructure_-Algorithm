@@ -1,0 +1,278 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  padding: 1.5rem 2rem;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  background: linear-gradient(to right, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.sidebar {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.week-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  padding: 1rem;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.week-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.week-btn.active {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.content-panel {
+  flex: 1;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.role-tag {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.reflection-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reflection-label {
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.reflection-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  padding: 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s;
+}
+
+.reflection-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.overall-input {
+  min-height: 300px;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--panel-border);
+  margin: 1rem 0;
+}
+
+.animation-fade {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.pdf-accordion {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.pdf-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.pdf-header:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.download-btn {
+  background: var(--accent);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.download-btn:hover {
+  background: var(--accent-hover);
+}
+
+.pdf-viewer {
+  border-top: 1px solid var(--panel-border);
+  padding: 0.5rem;
+  background: #fff;
+}
+
+.code-container {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111827;
+  padding: 0.5rem 1rem;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid var(--panel-border);
+  border-bottom: none;
+}
+
+.run-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.run-btn:hover {
+  background: var(--accent-hover);
+}
+
+.run-btn:disabled {
+  background: #475569;
+  cursor: not-allowed;
+}
+
+.code-block {
+  margin: 0;
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid var(--panel-border);
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.output-panel {
+  margin-top: 1rem;
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  color: #a7f3d0;
+  min-height: 60px;
+  white-space: pre-wrap;
+}
+
+.loading-pyodide {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--accent);
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  z-index: 50;
+  transform: translateY(-100%);
+  animation: slideDown 0.3s forwards;
+}
+
+@keyframes slideDown {
+  to { transform: translateY(0); }
+}
+
+.github-btn {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--panel-border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.github-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,288 @@
+[
+  {
+    "id": 1,
+    "title": "1차시)_큐_복습하기",
+    "cells": [
+      {
+        "type": "markdown",
+        "content": "# 큐의 구현"
+      },
+      {
+        "type": "code",
+        "content": "class Node:\n  def __init__(self, data):\n    self.data = data\n    self.next = None\n\n\nclass Queue:\n  def __init__(self):\n    self.front = None\n    self.tail = None\n\n  def enQueue(self, num):\n    new = Node(num)\n    if self.tail == None:\n      self.front = self.tail = new\n    else:\n      self.tail.next = new\n      self.tail = new\n\n  def deQueue(self):\n    if self.front == None:\n      print(\"dequeue FAIL: Queue is empty.\")\n    elif self.front == self.tail:\n      data = self.front.data\n      self.front = self.tail = None\n      return data\n    else:\n      data = self.front.data\n      self.front = self.front.next\n      return data\n\n  def printQueue(self):\n    cur = self.front\n    print(\"Queue: \", end=\"\")\n    if cur == None:\n      print(\"is empty.\")\n    else:\n      while cur != None:\n        print(f'{cur.data}', end=\", \")\n        cur = cur.next\n      print()\n\n  def size(self):\n    cur = self.front\n    size = 0\n    while cur != None:\n      size += 1\n      cur = cur.next\n    return size\n"
+      },
+      {
+        "type": "code",
+        "content": "Q = Queue()\nQ.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "Q.enQueue(9)"
+      },
+      {
+        "type": "code",
+        "content": "Q.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "Q.enQueue(3)\nQ.enQueue(12)\nQ.enQueue(24)\nQ.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "Q.deQueue()"
+      },
+      {
+        "type": "code",
+        "content": "Q.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "print(f\"삭제된 값: {Q.deQueue()}\")\nQ.printQueue()"
+      },
+      {
+        "type": "markdown",
+        "content": "# 큐 활용하기"
+      },
+      {
+        "type": "markdown",
+        "content": "Queue 클래스를 활용하여 놀이기구 줄 관리 프로그램을 완성하시오.\n\n- 이름 입력하면 줄에 섬\n- 5초마다 한 번 운행\n- 한 번 운행 시 최대 3명 탑승 후 하차\n- 'Q' 입력 시 종료"
+      },
+      {
+        "type": "code",
+        "content": "2231\n1import time as t\ntime = t.time()\nline = Queue()\n\ndef run(size):\n  if size > 3 :\n    for i in range(3):\n      line.deQueue()\n  else:\n    for i in range(size):\n      line.deQueue()\n  print('야호 신난다!')\n\nwhile True:\n  name = input('줄을 서시오! ->')\n  if name == 'Q':\n    break\n  else:\n    line.enQueue(name)\n\n  if (t.time() >= time + 5) and (line.size() != 0) :\n    run(line.size())\n    time = t.time()\n  line.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "import time as t\ntime = t.time()\nline = Queue()\n\ndef run(size):\n  if size > 3 :\n    for i in range(3):\n      line.deQueue()\n  elif size == 0:\n    return\n  else:\n    for i in range(size):\n      line.deQueue()\n  print('야호 신난다!')\n\nwhile True:\n  name = input('줄을 서시오! ->')\n  if name == 'Q':\n    break\n  else:\n    line.enQueue(name)\n\n  if (t.time() >= time + 5) and (line.size() != 0) :\n    laps = int((t.time() - time) // 5)\n    for i in range (laps):\n      run(line.size())\n    time += laps *5\n  line.printQueue()"
+      },
+      {
+        "type": "markdown",
+        "content": "# queue.Queue 활용하기"
+      },
+      {
+        "type": "code",
+        "content": "from queue import Queue as q2\n\nq = q2()\nq.put(1)\nq.put(2)\nq.put(3)"
+      },
+      {
+        "type": "code",
+        "content": "q.queue"
+      },
+      {
+        "type": "code",
+        "content": "q.get()"
+      },
+      {
+        "type": "code",
+        "content": "q.queue"
+      },
+      {
+        "type": "code",
+        "content": "q.empty()"
+      },
+      {
+        "type": "code",
+        "content": "q.queue"
+      },
+      {
+        "type": "code",
+        "content": "import time as t\ntime = t.time()\nline = q2()\n\ndef run(size):\n  if size > 3 :\n    for i in range(3):\n      line.get()\n  else:\n    for i in range(size):\n      line.get()\n  print('야호 신난다!')\n\nwhile True:\n  name = input('줄을 서시오! ->')\n  if name == 'Q':\n    break\n  else:\n    line.put(name)\n\n  if (t.time() >= time + 5) and (line.qsize() != 0) :\n    run(line.qsize())\n    time = t.time()"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "2주차)우선순위_큐",
+    "cells": [
+      {
+        "type": "code",
+        "content": "import heapq\nclass Node:\n  def __init__(self, data, pri):\n    self.data = data\n    self.next = None\n    self.pri = pri\n\n\nclass Queue:\n  def __init__(self):\n    self.front = None\n    self.tail = None\n\n  def enQueue(self, num, pri):\n    new = Node(num, pri)\n    if self.tail == None:\n      self.front = self.tail = new\n    elif self.front == self.tail:\n      if self.front.pri <= new.pri:\n        self.front.next = new\n        self.tail = new\n      else:\n        self.front = new\n        self.front.next = self.tail\n    else:\n      cur = self.front\n      if new.pri < self.front.pri:\n        new.next = self.front\n        self.front = new\n        return\n      while True:\n        if (cur.pri <= new.pri) and (new.pri < cur.next.pri):\n          new.next = cur.next\n          cur.next = new\n          return\n        elif cur == self.tail:\n          self.tail.next = new\n          self.tail = new\n          return\n        else:\n          cur = cur.next\n\n\n  def deQueue(self):\n    if self.front == None:\n      print(\"dequeue FAIL: Queue is empty.\")\n      return None\n    elif self.front == self.tail:\n      data = self.front.data\n      self.front = self.tail = None\n      return data\n    else:\n      data = self.front.data\n      self.front = self.front.next\n      return data\n\n  def printQueue(self):\n    cur = self.front\n    print(\"Queue: \", end=\"\")\n    if cur == None:\n      print(\"is empty.\")\n    else:\n      while cur != None:\n        print(f'{cur.data}', end=\", \")\n        cur = cur.next\n      print()\n\n  def size(self):\n    cur = self.front\n    size = 0\n    while cur != None:\n      size += 1\n      cur = cur.next\n    return size\n"
+      },
+      {
+        "type": "code",
+        "content": "a = Queue()\n\na.enQueue(2, 5)\na.enQueue(3, 6)\na.enQueue(9, 1)\na.enQueue(10, 5.5)\n\na.printQueue()"
+      },
+      {
+        "type": "code",
+        "content": "\n'''\n  0\n 12\n3456...\n\n\n  1\n 23\n4567....\n\n'''\n\nclass heap: #min heap 구현\n  def __init__(self):\n    self.l = ['start'] #인덱스가 0보단 1부터 시작하는게 계산하기 쉬움\n\n  def en(self, data):\n    self.l.append(data)\n    a = int(len(self.l)-1) #자식노드 인덱스\n    parent = int(a//2) #부모노드 인덱스\n    if a == 1:\n      return\n    while a>1:  #자식 부모 크기 비교 & 위치 변경\n     if self.l[parent] > self.l[a]:\n        x = self.l[parent]\n        self.l[parent] = self.l[a]\n        self.l[a] = x\n        a = parent #인덱스 업데이트\n        parent = int(a//2)\n     else:\n        break\n\n  def de(self):\n    if len(self.l) <= 1:\n      return None\n\n    data = self.l[1] #값 저장\n    self.l[1] = self.l[-1] #맨아래, 맨 오른쪽 노드를 최상위로 가져옴\n    del self.l[-1]\n\n    a = 1 #부모노드 인덱스\n    son = a*2 #자식 노드 인덱스\n\n    while son <= len(self.l) - 1: #자식노드가 있는 동안\n      if son + 1 <= len(self.l) - 1 and self.l[son] > self.l[son+1]: #자식 노드중 작은 것 판별, 자식노드가 하나뿐인 경우도 오류 없음\n        min_son = son + 1\n      else:\n        min_son = son\n\n      if self.l[a] > self.l[min_son]: #자식 노드가 더 작은 경우 자리변경\n        x = self.l[a]\n        self.l[a] = self.l[min_son]\n        self.l[min_son] = x\n        a = min_son #인덱스 업데이트\n        son = a * 2\n      else:\n        break\n\n    return data\n\nh = heap()\nh.en(5)\nh.en(4)\nh.en(8)\nprint(h.de())\n\nh.en(1)\nh.en(999)\nh.en(3)\nfor i in range(5):\n  print(h.de())"
+      },
+      {
+        "type": "code",
+        "content": "#2-B heap 사용 버전\n'''\n제한 사항 뜻: 총 stocks(남아있던 재고량과 중간에 보충한 재고량을 합한 값)가 n 이면 n일 직전까지 운영가능\n즉 총 stocks 가 k 이상이 될때까지 추가해야함.\n그 도중에서 중간에 stocks가 음수가 되면 안됨(0은 가능).\n그 경우의 수 중 주문 횟수를 최소로 하는 경우의 수를 찾아야함\n\n-> 목표 알고리즘:\n1.현재 총 stocks 로 버틸 수 있는 날 이전까지 존재하는 보급가능 날(dates)이 어디 있는지 정리.\n2.전체 보급 가능한 날짜 중 가장 보급량(supplies)이 많은 날에서 전부 가져온다고 가정.\n3.해당 날짜에는 이미 보급을 받았음으로 dates와 supplies에서 해당 날짜 제거.\n4.보급받은 양까지 합쳐서 총 K 일 버틸 수 있는지 확인. 불가능시 1 번으로 돌아감.\n'''\n\n#유저 입력부분\nstock = int(input('stocks ->'))\ndates = input('dates ->').split(',')\ndates = [int(x) for x in dates ]\nsup = input('supplies ->').split(',')\nsup = [int(x) for x in sup]\nk = int(input('k ->'))\n\n\nh = max_heap() #보충 가능 날 정보 저장\ntimes = 0 #보충 횟수 저장\n\n\ndef survive(stock, dates): #재고 + 보급량으로 버틸수 있는 날 중 보급 받을 수 있는 날이 몇개나 되느냐?\n  i = 0\n  while len(dates) > i:\n    if stock < dates[i]:\n      break\n    i+=1\n  return i\n\nwhile stock < k: #버티기 가능한지 검사, 재고가 부족하면 보충 루틴 돌리기\n  can_survive = survive(stock, dates)\n\n  for i in range(can_survive): #heap에 보급량 정보 기록. 가능한 날짜를 모두 기록하면 max_heap 특성상 dequeue 시 가장 보급량이 많은 날이 나옴\n    h.en(sup[i])\n\n  del sup[:can_survive]  #heap에 이전 날짜의 정보 모두 넣었으니 리스트에선 지워도 됨\n  del dates[:can_survive]\n\n  stock += h.de() #총 재고량 = stock + supply\n  times += 1 # 보충횟수 카운터\n\nprint(f'최소 보충 횟수:{times}')"
+      },
+      {
+        "type": "code",
+        "content": "#2-B heap 사용 x 버전\n'''\n제한 사항 뜻: 총 stocks(남아있던 재고량과 중간에 보충한 재고량을 합한 값)가 n 이면 n일 직전까지 운영가능\n즉 총 stocks 가 k 이상이 될때까지 추가해야함.\n그 도중에서 중간에 stocks가 음수가 되면 안됨(0은 가능).\n그 경우의 수 중 주문 횟수를 최소로 하는 경우의 수를 찾아야함.\n\n-> 목표 알고리즘:\n1.현재 총 stocks 로 버틸 수 있는 날 이전까지 존재하는 보급가능 날(dates)이 어디 있는지 정리.\n2.전체 보급 가능한 날짜 중 가장 보급량(supplies)이 많은 날에서 전부 가져온다고 가정.\n3.해당 날짜에는 이미 보급을 받았음으로 dates와 supplies에서 해당 날짜 제거.\n4.보급받은 양까지 합쳐서 총 K 일 버틸 수 있는지 확인. 불가능시 1 번으로 돌아감.\n'''\n#유저 입력 부분\nstock = int(input('stocks ->'))\ndates = input('dates ->').split(',')\ndates = [int(x) for x in dates ]\nsup = input('supplies ->').split(',')\nsup = [int(x) for x in sup]\nk = int(input('k ->'))\n\ntimes = 0\n\ndef survive(stock, dates):\n  i = 0\n  can_survive = []\n  while len(dates) > i:\n    if stock >= dates[i]:\n      can_survive.append(dates[i])\n    else:\n      break\n    i+=1\n  return len(can_survive)\n\nwhile stock < k:\n  can_survive = survive(stock, dates)\n  possible_sup = sup[:can_survive] #heap 대신 리스트를 선택적으로 복붙해서 사용\n  max_val = max(possible_sup)   #최댓값 구하기\n  max_index = possible_sup.index(max_val) #최댓값의 인덱스 구하기\n  dates.pop(max_index) #해당 값 삭제\n\n  stock += sup.pop(max_index) #서플라이 값을 stock에 추가, 해당 값 삭제\n  times += 1\nprint(f'최소 보충 횟수:{times}')"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "3주차해시테이블",
+    "cells": [
+      {
+        "type": "code",
+        "content": "class HashTableDivision:\n  def __init__(self, size=7):\n    self.size = size\n    self.table = [None] * size\n\n  def hash_fn(self, key):\n    return key % self.size\n\n  def insert(self, key, value):\n    idx = self.hash_fn(key)\n    self.table[idx] = (key, value)\n\n  def search(self, key):\n    idx = self.hash_fn(key)\n    if self.table[idx] is None:\n      return None\n    return self.table[idx][-1]\n\n  def display(self):\n    print(\"\\n[ 해시 테이블 상태 ]\")\n    for i, slot in enumerate(self.table):\n      print(f\"  [{i}] {slot}\")\n    print()"
+      },
+      {
+        "type": "code",
+        "content": "ht = HashTableDivision(size=7)\n\nht.insert(16, \"apple\")   # 16 % 7 = 2\nht.insert(5,  \"daisy\")   # 5  % 7 = 5\n\nht.display()\n\nprint(\"search(16):\", ht.search(16))\nprint(\"search(23):\", ht.search(22))\nprint(\"search(30):\", ht.search(5))"
+      },
+      {
+        "type": "code",
+        "content": "class HashTableFolding:\n  def __init__(self, size=193):\n    self.size = size\n    self.table = [None] * size\n\n  def fold(self, key):\n    hash = 0\n    if len(str(key)) % 2: #어째서인지 큰 자리 숫자부터 묶길 바라는 예제를 위한 더러운 코드\n      div = 10\n\n      hash += (key % div)\n      key = key // div\n\n      div = 100\n\n      while key>0:\n        hash += (key % div)\n        key = key // div\n\n    else:\n      div = 100\n\n      while key>0:\n        hash += (key % div)\n        key = key // div\n\n    return hash % self.size\n\n  def insert(self, key, value):\n    idx = self.fold(key)\n    self.table[idx] = (key, value)\n\n\n\n\n  def search(self, key):\n    idx = self.fold(key)\n    if self.table[idx] is None:\n      return None\n    return self.table[idx][-1]\n\n  def display(self):\n    print(\"\\n[ 해시 테이블 상태 ]\")\n    for  slot in self.table:\n      if slot is None:\n        continue\n      idx = self.fold(slot[0])\n      print(f\"[{idx}]{slot}\")\n    print()\n\nht = HashTableFolding()\nht.insert(123456789, \"apple\")   # 12+34+56+78+9=189 → 189%100=89\nht.insert(987654321, \"banana\")  # 98+76+54+32+1=261 → 261%100=61\nht.insert(111222333, \"cherry\")  # 11+12+22+33+3=81  → 81%100=81\n\nht.display()\nprint(\"search(123456789):\", ht.search(123456789))  # apple\nprint(\"search(111222333):\", ht.search(111222333))  # apple\nprint(\"search(999999999):\", ht.search(999999999))  # MISS"
+      },
+      {
+        "type": "code",
+        "content": "class HashTableFolding:\n  def __init__(self, size=193, N=100):\n    self.size = size\n    self.N = N\n    self.table = [None] * size\n\n  def fold(self, key):\n    hash = 0\n\n    div = self.N\n    while key>0: #깔끔 모든 문제는 이래야함.\n      hash += (key % div)\n      key = key // div\n\n    return hash % self.size\n\n  def insert(self, key, value):\n    idx = self.fold(key)\n    self.table[idx] = (key, value)\n\n  def search(self, key):\n    idx = self.fold(key)\n    if self.table[idx] is None:\n      return None\n    return self.table[idx][-1]\n\n  def delete(self, key):\n        idx = self.fold(key)\n        if self.table[idx] is not None and self.table[idx][0] == key:\n            self.table[idx] = None\n\n  def display(self):\n    print(\"\\n[ 해시 테이블 상태 ]\")\n    for  slot in self.table:\n      if slot is None:\n        continue\n      idx = self.fold(slot[0])\n      print(f\"[{idx}]{slot}\")\n    print()\n\nht = HashTableFolding()\nht.insert(111, \"apple\")\nht.insert(321321, \"banana\")\nht.insert(41242, \"cherry\")\n\nht.display()\nprint(\"search(111111):\", ht.search(111))\nprint(\"search(222):\", ht.search(321321))\nprint(\"search(6):\", ht.search(41242))\nprint(\"search(999999999):\", ht.search(999999999))\nht.delete(222)\nht.delete(111)\nht.display()"
+      },
+      {
+        "type": "code",
+        "content": "#2\n\ncafeteria_table = HashTableFolding()\n\ndef check(id):\n  name  = cafeteria_table.search(id)\n  if name:\n    print(f\"출석 확인: {id} {name}님 환영합니다.\")\n  else:\n    print(f\"출입 금지: {id} 잘못된 학번입니다.\")\n\n\n\n\nprint(\"[ 학기 초 명단 등록 ]\")\nwhile True:\n  i = int(input('학번(-1시 종료)'))\n  if i == -1:\n    break\n  k = input('이름')\n  cafeteria_table.insert(i, k)\n\ncafeteria_table.display()\n\nwhile True:\n  a = int(input('1: 전학생 제거, 2: 출석확인, -1: 실행종료'))\n  if a ==  -1:\n    break\n  elif a == 1:\n    x =  int(input('전학생 학번?'))\n    cafeteria_table.delete(x)\n    cafeteria_table.display()\n  elif a== 2:\n    while True:\n      b =int( input('학번?(-1시 실행 옵션 선택으로 돌아가기)'))\n      if b == -1:\n        break\n      check(b)\n\n"
+      },
+      {
+        "type": "code",
+        "content": "#3A\n\ndef solution(arr, target):\n    hash_table = chaining_hash(size=20000)\n\n    for num in arr:# 각 숫자마다\n        complement = target - num  #타겟을 만들기 위해 필요한 값 확인\n\n        if complement > 0 and hash_table.search(complement) is not None: #타겟을 만들기 위해 필요한 값 존재 여부 확인\n            return True\n        hash_table.insert(num, 'none') #이후에 해쉬 테이블에 첨가 -> [2,3,5,7,9] 4 같이 2+2 = 4 가 되는 경우 방지\n\n    return False\n\n\nprint(solution([2,7,11,15],9))\nprint(solution([2,7,11,15],10))\nprint(solution([1,3,5,7],6))\nprint(solution([1,3,5,7],2))\nprint(solution([4,4,8,12],8)) #문제조건상 주어지면 안되는 중복 입력에서도 완전 잘 작동!"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "4주차시간복잡도",
+    "cells": [
+      {
+        "type": "code",
+        "content": "#4번\n#피보나치 재귀에다가 메모이제이션 활용 -> O(n)\n\n\nimport time as t\nimport sys\n\n# 재귀 깊이 제한을 10,000으로 확장\nsys.setrecursionlimit(10000)\n\nmemo = {}\ndef fibo(n):\n\n    if n in memo:\n        return memo[n]\n    if n == 1:\n        return 1\n    if n == 2:\n        return 2\n\n    memo[n] = fibo(n-1) + fibo(n-2)\n    return memo[n]\n\nprint('계단의 수 n 입력')\nn = int(input())\nt1 = t.time()\nans = fibo(n)\nt2 = t.time()\nt_fibo_memo = t2-t1\nprint(f'경우의 수{ans}, 소요 시간{t2-t1}')"
+      },
+      {
+        "type": "code",
+        "content": "#4번 계단오르기, 행렬 활용해 O(log n)\n\nimport time as t\nimport sys\n\n# 재귀 깊이 제한을 10,000으로 확장\nsys.setrecursionlimit(10000)\n\n\ndef multiply_matrix(A, B):\n    return [\n        [A[0][0]*B[0][0] + A[0][1]*B[1][0], A[0][0]*B[0][1] + A[0][1]*B[1][1]],\n        [A[1][0]*B[0][0] + A[1][1]*B[1][0], A[1][0]*B[0][1] + A[1][1]*B[1][1]]\n    ]\n\ndef power_matrix(M, p):\n    result = [[1, 0], [0, 1]]  # 단위 행렬\n    base = M\n\n    while p > 0:\n        if p % 2 == 1:\n            result = multiply_matrix(result, base)\n        base = multiply_matrix(base, base)\n        p //= 2\n\n    return result\n\ndef climb_stairs_log_n(n):\n    if n == 1:\n        return 1\n    if n == 2:\n        return 2\n\n    transformation_matrix = [[1, 1], [1, 0]]\n    # (n-2)번 제곱\n    matrix_n_minus_2 = power_matrix(transformation_matrix, n - 2)\n\n    # 초기값 a_2 = 2, a_1 = 1\n    a_n = matrix_n_minus_2[0][0] * 2 + matrix_n_minus_2[0][1] * 1\n    return a_n\n\n\nprint(f'계단의 수:{n}')\nt1 = t.time()\nans = climb_stairs_log_n(n)\nt2 = t.time()\nprint(f'경우의 수{ans}, 소요 시간{t2-t1}')\nt_vec = t2-t1"
+      },
+      {
+        "type": "code",
+        "content": "#4번\n#피보나치 재귀 기본, O (2^n)\n\nimport time as t\nimport sys\n\n# 재귀 깊이 제한을 10,000으로 확장\nsys.setrecursionlimit(10000)\n\ndef fibo(n):\n\n    if n == 1:\n        return 1\n    if n == 2:\n        return 2\n    return fibo(n-1) + fibo(n-2)\n\nprint(f'계단의 수:{n}')\nt1 = t.time()\nans = fibo(n)\nt2 = t.time()\nprint(f'경우의 수{ans}, 소요 시간{t2-t1}')\nt_fibo_nor = t2-t1"
+      },
+      {
+        "type": "code",
+        "content": "# 걸린 시간 비교\ntime_results = {\n    'O(n)': t_fibo_memo,\n    'O(log n)': t_vec,\n    'O(2^n)': t_fibo_nor\n}\n\n# 1. 지정된 세 가지를 순서대로 출력\nprint(\"기존 순서 출력:\")\nprint(f\"O(n): {time_results['O(n)']}\")\nprint(f\"O(log n): {time_results['O(log n)']}\")\nprint(f\"O(2^n): {time_results['O(2^n)']}\")\nprint()\n\n# 2. 걸린 시간이 짧은 순서(오름차순)대로 정렬하여 출력\nprint(\"소요 시간 오름차순 출력:\")\nsorted_results = sorted(time_results.items(), key=lambda item: item[1])\n\nfor big_o, time_taken in sorted_results:\n    print(f\"{big_o}: {time_taken}\")"
+      },
+      {
+        "type": "code",
+        "content": "import time as t\nimport sys\nimport random as r\n\n# 재귀 깊이 제한을 확장\nsys.setrecursionlimit(100000)\n\n# 1. 정렬 알고리즘 정의\ndef merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n\n    mid = len(arr) // 2\n    left_half = merge_sort(arr[:mid])\n    right_half = merge_sort(arr[mid:])\n\n    return merge(left_half, right_half)\n\ndef merge(left, right):\n    result = []\n    i = 0\n    j = 0\n\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n\n    result.extend(left[i:])\n    result.extend(right[j:])\n    return result\n\ndef quick_sort(arr, low, high):\n    if low < high:\n        pivot_index = partition(arr, low, high)\n        quick_sort(arr, low, pivot_index - 1)\n        quick_sort(arr, pivot_index + 1, high)\n\ndef partition(arr, low, high):\n    pivot = arr[high]\n    i = low - 1\n\n    for j in range(low, high):\n        if arr[j] <= pivot:\n            i += 1\n            arr[i], arr[j] = arr[j], arr[i]\n\n    arr[i + 1], arr[high] = arr[high], arr[i + 1]\n    return i + 1\n\ndef bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr\n\n# 2. 유틸리티 함수 정의\ndef calc_min_diff(arr):\n    min_dif = float('inf')\n    for i in range(len(arr) - 1):\n        dif = arr[i+1] - arr[i]\n        if dif < min_dif:\n            min_dif = dif\n    return min_dif\n\n# 3. 난수 배열 생성\nARRAY_SIZE = 10000\nprint(f\"배열 크기: {ARRAY_SIZE}개의 난수 생성 완료\\n\")\noriginal_arr = [r.randint(-100000, 100000) for _ in range(ARRAY_SIZE)]\n\ntime_results = {}\n\n# 4. 성능 측정\n# [병합 정렬 평가]\narr_merge = original_arr.copy()\nt1 = t.time()\narr_merge_sorted = merge_sort(arr_merge)\nmin_dif_merge = calc_min_diff(arr_merge_sorted)\nt2 = t.time()\ntmerge = t2 - t1\ntime_results['병합 정렬'] = tmerge\nprint(f\"병합 정렬 완료 -> 차의 최솟값: {min_dif_merge}\")\n\n# [퀵 정렬 평가]\narr_quick = original_arr.copy()\nt1 = t.time()\nquick_sort(arr_quick, 0, len(arr_quick) - 1)\nmin_dif_quick = calc_min_diff(arr_quick)\nt2 = t.time()\ntquick = t2 - t1\ntime_results['퀵 정렬'] = tquick\nprint(f\"퀵 정렬 완료 -> 차의 최솟값: {min_dif_quick}\")\n\n# [버블 정렬 평가]\narr_bubble = original_arr.copy()\nt1 = t.time()\nbubble_sort(arr_bubble)\nmin_dif_bubble = calc_min_diff(arr_bubble)\nt2 = t.time()\ntbubble = t2 - t1\ntime_results['버블 정렬'] = tbubble\nprint(f\"버블 정렬 완료 -> 차의 최솟값: {min_dif_bubble}\\n\")\n\n# 5. 결과 출력\nprint(\"기존 순서 출력:\")\nfor sort_name, time_taken in time_results.items():\n    print(f\"{sort_name}: {time_taken:.6f}초\")\n\nprint(\"\\n소요 시간 오름차순 출력:\")\nsorted_results = sorted(time_results.items(), key=lambda item: item[1])\nfor sort_name, time_taken in sorted_results:\n    print(f\"{sort_name}: {time_taken:.6f}초\")"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "5주차문자열탐색",
+    "cells": [
+      {
+        "type": "code",
+        "content": "def brute_force_search(text, pattern):\n    n = len(text)\n    m = len(pattern)\n    total = []\n\n    if m == 0 or n<m: #계산할 필요 없음\n        return total\n\n    for i in range(n - m + 1): #n-m 까지 순회, 텍스트 길이가 패턴 보다 짧을 순 없음\n        j = 0 #초기화\n        while j < m and text[i + j] == pattern[j]:#i 번째 칸부터 텍스트와 패턴의 값 1대1 대조\n            j += 1\n\n        if j == m: # 완전, 끝까지 일치시\n          total.append(i)\n\n\n    return total"
+      },
+      {
+        "type": "code",
+        "content": "#검증\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = brute_force_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABzAB\"\nmatches = brute_force_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\ntext_data = \"ABABDABACDABABCABABabcdefgABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = brute_force_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\nprint()\ntext_data = \"박제가 되어 버린 천재를 아시오? 나는 유쾌하오. 이런 때 연애까지가 유쾌하오.\"\npattern_data = \"유쾌\"\nmatches = brute_force_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\nprint()\ntext_data = \"الله عظيم. الله عليم بكل شيء. الله قدير.\"\npattern_data = \"الله\"\nmatches = brute_force_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\n"
+      },
+      {
+        "type": "code",
+        "content": "def rabin_karp_search(text, pattern, q=139):\n    \"\"\"\n    라빈-카프 알고리즘을 사용하여 텍스트 내에서 패턴을 검색하는 함수입니다.\n    매칭되는 모든 시작 인덱스를 리스트로 반환합니다.\n    \"\"\"\n    n = len(text)\n    m = len(pattern)\n\n    if m == 0 or n < m:\n        return []\n\n    d = 2  # 진수\n\n    result = []\n    p_hash = 0  # 패턴의 해시값\n    t_hash = 0  # 텍스트 부분 문자열의 해시값\n    h = 1\n\n    # h = (d^(m-1)) % q 계산\n    for i in range(m - 1):\n        h = (h * d)\n\n    h = h%q\n\n    # 패턴과 텍스트의 첫 번째 부분 문자열에 대한 초기 해시값 계산\n    for i in range(m):\n        p_hash = (d * p_hash + ord(pattern[i])) % q\n        t_hash = (d * t_hash + ord(text[i])) % q\n\n    print(f\"패턴의 해시값: {p_hash}\")\n\n    # 텍스트를 순회하며 해시값 비교 및 롤링 해시 갱신\n    for i in range(n - m + 1):\n        print(f\"인덱스 {i}에서의 본문 부분 문자열 해시값: {t_hash}\")\n\n        if p_hash == t_hash:\n            # 해시값이 일치하면 실제 문자를 하나씩 비교 (해시 충돌 대비)\n            match = True\n            for j in range(m):\n                if text[i + j] != pattern[j]:\n                    match = False\n                    break\n            if match:\n                result.append(i)\n\n        # 다음 부분 문자열의 해시값 계산 (롤링 해시)\n        if i < n - m:\n            # 첫 문자 제거 및 새로운 문자 추가\n            t_hash = (((t_hash - ord(text[i]) * h) << 1) + ord(text[i + m])) % q\n\n            # 음수 해시값이 나올 경우 양수로 변환\n            if t_hash < 0:\n                t_hash += q\n\n    return result"
+      },
+      {
+        "type": "code",
+        "content": "q_value = int(input(\"나누는 소수(Prime Number)를 입력하세요: \"))\n# 실행 예시\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = rabin_karp_search(text_data, pattern_data, q_value)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABZAB\"\nmatches = rabin_karp_search(text_data, pattern_data, q_value)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"ABABDABACDABABCABABabcdefgABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = rabin_karp_search(text_data, pattern_data, q_value)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"박제가 되어 버린 천재를 아시오? 나는 유쾌하오. 이런 때 연애까지가 유쾌하오.\"\npattern_data = \"유쾌\"\nmatches = rabin_karp_search(text_data, pattern_data, q_value)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\nprint()\ntext_data = \"الله عظيم. الله عليم بكل شيء. الله قدير.\"\npattern_data = \"الله\"\nmatches = rabin_karp_search(text_data, pattern_data, q_value)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")"
+      },
+      {
+        "type": "code",
+        "content": "#KMP 알고리즘\n\ndef compute_lps_array(pattern):\n#패턴\n    m = len(pattern)\n    lps = [0] * m\n    length = 0  # 이전 최대 접두사 길이\n    i = 1 #lsp의 첫 값은 항상 0\n\n    while i < m: #끝까지 순회\n        if pattern[i] == pattern[length]: #패턴의 현재 문자[i] == 접두사의 다음 문자(length)\n            length += 1 #다음 인덱스 검사\n            lps[i] = length\n            i += 1\n        else:\n            if length != 0: #문자 불일치, 하지만 이전에 이미 일치했던 접두사 존재\n                length = lps[length - 1] #\n            else:\n                lps[i] = 0\n                i += 1\n\n    print(pattern)\n    print(lps)\n    return lps\n\ndef kmp_search(text, pattern):\n    \"\"\"\n    KMP 알고리즘을 사용하여 텍스트 내에서 패턴을 검색하는 함수입니다.\n    매칭되는 모든 시작 인덱스를 리스트로 반환합니다.\n    \"\"\"\n    n = len(text)\n    m = len(pattern)\n\n    if m == 0 or n<m:\n        return []\n\n    lps = compute_lps_array(pattern)\n    result = []\n    i = 0  # 텍스트의 인덱스\n    j = 0  # 패턴의 인덱스\n\n    while i < n:\n        if pattern[j] == text[i]:\n            i += 1\n            j += 1\n\n        if j == m:\n            # 패턴을 찾은 경우\n            result.append(i - j)\n            j = lps[j - 1]\n        elif i < n and pattern[j] != text[i]:\n            # 불일치가 발생한 경우\n            if j != 0:\n                j = lps[j - 1]\n            else:\n                i += 1\n\n    return result"
+      },
+      {
+        "type": "code",
+        "content": "# 실행 예시\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = kmp_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABZAB\"\nmatches = kmp_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\ntext_data = \"ABABDABACDABABCABABabcdefgABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = kmp_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\ntext_data = \"박제가 되어 버린 천재를 아시오? 나는 유쾌하오. 이런 때 연애까지가 유쾌하오.\"\npattern_data = \"유쾌\"\nmatches = kmp_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\nprint()\ntext_data = \"الله عظيم. الله عليم بكل شيء. الله قدير.\"\npattern_data = \"الله\"\nmatches = kmp_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")"
+      },
+      {
+        "type": "code",
+        "content": "#보이어 무어 건너뛰기 테이블x 버전\n\ndef generate_bad_character_table(pattern):\n    \"\"\"\n    패턴 내 각 문자의 가장 오른쪽 등장 위치를 기록하는\n    나쁜 문자 테이블을 생성하는 함수입니다.\n    \"\"\"\n    m = len(pattern)\n    bad_char_table = {}\n\n    for i in range(m):\n        bad_char_table[pattern[i]] = i\n\n\n    print(bad_char_table)\n    return bad_char_table\n\ndef boyer_moore_search(text, pattern):\n\n    n = len(text)\n    m = len(pattern)\n\n    if m == 0 or n <m:\n        return []\n\n    bad_char_table = generate_bad_character_table(pattern)\n    result = []\n\n    s = 0\n\n    while s <= n - m:\n        j = m - 1\n\n        while j >= 0 and pattern[j] == text[s + j]:\n            j -= 1\n\n        if j < 0:\n            result.append(s)\n\n            if s + m < n:\n                bad_char_index = bad_char_table.get(text[s + m], -1)\n                s += m - bad_char_index\n            else:\n                s += 1\n        else:\n            bad_char_index = bad_char_table.get(text[s + j], -1)\n            s += max(1, j - bad_char_index)\n\n    return result"
+      },
+      {
+        "type": "code",
+        "content": "#보이어 무어 건너뛰기 테이블 버전\n\ndef generate_skip_table(pattern):\n    m = len(pattern)\n    skip_table = {}\n\n    # 패턴의 마지막 문자를 제외한 나머지 문자들에 대해 건너뛰기 거리 계산\n    # 수식: 패턴의 길이(m) - 1 - 현재 인덱스(i)\n    for i in range(m - 1):\n        skip_table[pattern[i]] = m - 1 - i\n\n\n    print(skip_table)\n    return skip_table\n\ndef boyer_moore_search(text, pattern):\n    n = len(text)\n    m = len(pattern)\n    total = []\n\n    if m == 0 or n < m:\n        return total\n\n    skip_table = generate_skip_table(pattern)\n    s = 0\n\n    while s <= n - m:\n        j = m - 1\n\n        # 뒤에서부터 패턴과 텍스트 비교\n        while j >= 0 and pattern[j] == text[s + j]:\n            j -= 1\n\n        if j < 0:\n            # 패턴이 완전히 일치한 경우\n            total.append(s)\n            # 일치 후 다음 탐색을 위한 이동: 윈도우의 마지막 문자를 기준으로 이동\n            s += skip_table.get(text[s + m - 1], m)\n        else:\n            # 불일치 발생 시: 불일치 위치 j가 아닌, 윈도우의 마지막 텍스트 문자를 기준으로 이동\n            s += skip_table.get(text[s + m - 1], m)\n\n    return total"
+      },
+      {
+        "type": "code",
+        "content": "# 실행 예시\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = boyer_moore_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"ABABDABACDABABCABAB\"\npattern_data = \"ABABCABZAB\"\nmatches = boyer_moore_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"ABABDABACDABABCABABabcdefgABABCABAB\"\npattern_data = \"ABABCABAB\"\nmatches = boyer_moore_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\nprint()\n\ntext_data = \"박제가 되어 버린 천재를 아시오? 나는 유쾌하오. 이런 때 연애까지가 유쾌하오.\"\npattern_data = \"유쾌\"\nmatches = boyer_moore_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")\n\nprint()\ntext_data = \"الله عظيم. الله عليم بكل شيء. الله قدير.\"\npattern_data = \"الله\"\nmatches = boyer_moore_search(text_data, pattern_data)\n\nprint(f\"텍스트: {text_data}\")\nprint(f\"패턴: {pattern_data}\")\nprint(f\"발견된 인덱스: {matches}\")"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "6주차그리디알고리즘",
+    "cells": [
+      {
+        "type": "code",
+        "content": "import heapq\nfrom collections import Counter\n\n\nclass Node:\n    def __init__(self, char, freq, left=None, right=None):\n        self.char = char\n        self.freq = freq\n        self.left = left\n        self.right = right\n\n    def __lt__(self, other):\n        return self.freq < other.freq\n\n\ndef build_huffman_tree(text):\n    freq = Counter(text)\n\n    heap = []\n    order = 0\n\n    for char, count in freq.items():\n        heapq.heappush(heap, (count, order, Node(char, count)))\n        order += 1\n\n    if len(heap) == 1:\n        count, _, node = heapq.heappop(heap)\n        return Node(None, count, left=node), freq\n\n    print(\"[허프만 트리 구축 과정]\")\n\n    while len(heap) > 1:\n        freq1, _, node1 = heapq.heappop(heap)\n        freq2, _, node2 = heapq.heappop(heap)\n\n        print(f\"해 선택: 빈도 가장 작은 두 노드 선택 -> {node1.char}:{freq1}, {node2.char}:{freq2}\")\n\n        merged = Node(None, freq1 + freq2, node1, node2)\n\n        print(f\"실행 가능성 검사: 두 노드를 합쳐 빈도 {freq1 + freq2}의 새 노드 생성\")\n        print()\n\n        heapq.heappush(heap, (merged.freq, order, merged))\n        order += 1\n\n    print(\"해 완성 검사: 남은 노드가 하나이므로 허프만 트리 완성\")\n    print()\n\n    return heap[0][2], freq\n\n\ndef make_codes(node, current_code, codes):\n    if node is None:\n        return\n\n    if node.char is not None:\n        if current_code == \"\":\n            codes[node.char] = \"0\"\n        else:\n            codes[node.char] = current_code\n        return\n\n    make_codes(node.left, current_code + \"0\", codes)\n    make_codes(node.right, current_code + \"1\", codes)\n\n\ndef encode(text, codes):\n    result = \"\"\n\n    for char in text:\n        result += codes[char]\n\n    return result\n\n\ndef decode(encoded, root):\n    result = \"\"\n    node = root\n\n    for bit in encoded:\n        if bit == \"0\":\n            node = node.left\n        else:\n            node = node.right\n\n        if node.char is not None:\n            result += node.char\n            node = root\n\n    return result\n\n\ndef huffman_coding(text):\n    if text == \"\":\n        print(\"빈 문자열은 압축할 수 없습니다.\")\n        return\n\n    root, freq = build_huffman_tree(text)\n\n    codes = {}\n    make_codes(root, \"\", codes)\n\n    print(\"[문자 빈도]\")\n    for char, count in freq.items():\n        print(f\"{repr(char)}: {count}\")\n\n    print()\n\n    print(\"[허프만 코드]\")\n    for char, code in codes.items():\n        print(f\"{repr(char)}: {code}\")\n\n    print()\n\n    encoded = encode(text, codes)\n    decoded = decode(encoded, root)\n\n    original_bits = len(text) * 8\n    compressed_bits = len(encoded)\n\n    compression_ratio = compressed_bits / original_bits\n    reduction_ratio = 1 - compression_ratio\n\n    print(\"[압축 결과]\")\n    print(f\"원본 문자열: {text}\")\n    print(f\"압축된 비트열: {encoded}\")\n    print(f\"원본 비트 수: {original_bits}\")\n    print(f\"압축 비트 수: {compressed_bits}\")\n    print(f\"압축 비율: {compression_ratio * 100:.2f}%\")\n    print(f\"감소율: {reduction_ratio * 100:.2f}%\")\n\n    print()\n\n    print(\"[복원 결과]\")\n    print(f\"복원 문자열: {decoded}\")\n\n    if decoded == text:\n        print(\"복원 성공\")\n    else:\n        print(\"복원 실패\")\n\n\n# 입력\ntext = input(\"압축할 문자열을 입력하세요: \")\nhuffman_coding(text)"
+      },
+      {
+        "type": "markdown",
+        "content": "해 선택 :\n현재 남아 있는 노드 중 빈도가 가장 작은 두 노드를 우선순위 큐에서 추출해 새 내부 노드로 병합한다. 이를 통해 빈도가 가장 낮은 문자들을 트리 깊이 배치해 긴 코드를 부여한다.\n\n실행 가능성 검사 :\n선택한 두 노드를 하나의 새 노드로 합쳐도 문자들이 트리 안에 유지되는지 확인한다. 허프만 트리를 이루기 위해서는 이진 트리 구조가 유지되어야 한다. 새 노드를 항상 char 속성이 None인 내부 노드로 만들어 원문자 잎 노드가 손상되지 않게 하며, 새 노드의 자식 노드로 이전 노드를 명확히 연결한다. 새 노드를 힙에 삽입해도 힙과 기존의 다른 노드들의 서브트리를 훼손하지 않는다. 따라서 실행 가능한 해로 인정할 수 있다. 그리고 초기 노드 개수가 하나인 경우에는 노드를 가짜 부모 노드에 달아 트리 형태를 유지한다.\n\n해 완성 검사 :\n남은 노드가 하나라면 허프만 트리가 완성된 것이고, 아직 여러 노드가 남아 있다면 다시 빈도가 가장 작은 두 노드를 선택하는 것을 반복한다."
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "7주차분할정복ipynb",
+    "cells": [
+      {
+        "type": "code",
+        "content": "# 3-1. Brute Force 사용\ndef find_president_brute_force(votes):\n    n = len(votes)\n\n    if n == 0:\n        return \"재투표가 필요합니다.\"\n\n    for candidate in votes:\n        count = 0\n\n        for vote in votes:\n            if vote == candidate:\n                count += 1\n\n        if count > n // 2:\n            return candidate\n\n    return \"재투표가 필요합니다.\"\n\n\n# 3-2. Divide and Conquer 사용\ndef find_president_divide_conquer(votes):\n    n = len(votes)\n\n    if n == 0:\n        return \"재투표가 필요합니다.\"\n\n    def divide_and_conquer(left, right):\n        # 정복: 원소가 하나만 남으면 그 원소를 후보로 반환\n        if left == right:\n            return votes[left]\n\n        # 분할: 투표 구간을 왼쪽과 오른쪽으로 나눔\n        mid = (left + right) // 2\n        left_candidate = divide_and_conquer(left, mid)\n        right_candidate = divide_and_conquer(mid + 1, right)\n\n        # 결합: 왼쪽 후보와 오른쪽 후보가 같으면 그대로 반환\n        if left_candidate == right_candidate:\n            return left_candidate\n\n        left_count = 0\n        right_count = 0\n\n        for i in range(left, right + 1):\n            if votes[i] == left_candidate:\n                left_count += 1\n            if votes[i] == right_candidate:\n                right_count += 1\n\n        if left_count > right_count:\n            return left_candidate\n        elif right_count > left_count:\n            return right_candidate\n        else:\n            return None\n\n    candidate = divide_and_conquer(0, n - 1)\n\n    if candidate is not None and votes.count(candidate) > n // 2:\n        return candidate\n    else:\n        return \"재투표가 필요합니다.\"\n\n\n# 입력\nvotes = list(map(int, input().split()))\n\n# 출력\nprint(\"Brute Force:\", find_president_brute_force(votes))\nprint(\"Divide and Conquer:\", find_president_divide_conquer(votes))"
+      },
+      {
+        "type": "markdown",
+        "content": "\n입출력 예시 테스트\n다양한 경계 조건(Edge Case)을 포함한 실행 예시\n# 1. 빈 리스트: 입력값이 존재하지 않는 예외 상황 처리 검증\ntest_empty = []\n\n# 2. 만장일치: 모든 투표가 동일한 후보에게 쏠린 이상적인 경우\ntest_unanimous = [2, 2, 2, 2, 2]\n\n# 3. 완벽한 동률: 두 후보가 정확히 절반씩 득표하여 과반수가 없는 경우\ntest_tie = [1, 1, 2, 2]\n\n# 4. 표의 완전한 분산: 어떤 후보도 1표를 초과하여 받지 못한 경우\ntest_no_majority = [1, 2, 3, 4, 5]\n\n# 5. 최소 과반수 충족: 전체 N표 중 바닥함수 처리 후 정확히 (N/2) + 1 표를 얻은 경우\ntest_barely_majority = [3, 3, 3, 1, 2]\n\n# 6. 정확히 절반 득표: 과반수(N/2 초과)의 엄밀한 정의를 테스트하는 경우\ntest_exactly_half = [1, 1, 1, 2, 2, 3]\n\nprint(find_majority_candidate(test_empty))          # 출력: 재투표 필요\nprint(find_majority_candidate(test_unanimous))      # 출력: 회장 후보:2\nprint(find_majority_candidate(test_tie))            # 출력: 재투표 필요\nprint(find_majority_candidate(test_no_majority))    # 출력: 재투표 필요\nprint(find_majority_candidate(test_barely_majority))# 출력: 회장 후보:3\nprint(find_majority_candidate(test_exactly_half))   # 출력: 재투표 필요"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "8주차동적계획법",
+    "cells": [
+      {
+        "type": "code",
+        "content": "def solution(arr):\n    nums = list(map(int, arr[::2]))\n    ops = arr[1::2]\n\n    n = len(nums)\n\n    # max_dp[i][j]: nums[i]부터 nums[j]까지 만들 수 있는 최댓값\n    # min_dp[i][j]: nums[i]부터 nums[j]까지 만들 수 있는 최솟값\n    max_dp = [[float(\"-inf\")] * n for _ in range(n)]\n    min_dp = [[float(\"inf\")] * n for _ in range(n)]\n\n    # 숫자 하나만 있는 구간\n    for i in range(n):\n        max_dp[i][i] = nums[i]\n        min_dp[i][i] = nums[i]\n\n    # 구간 길이: 2개 숫자부터 n개 숫자까지\n    for length in range(2, n + 1):\n        for start in range(n - length + 1):\n            end = start + length - 1\n\n            # start ~ end 구간을 k 기준으로 나눔\n            for k in range(start, end):\n                op = ops[k]\n\n                left_max = max_dp[start][k]\n                left_min = min_dp[start][k]\n                right_max = max_dp[k + 1][end]\n                right_min = min_dp[k + 1][end]\n\n                if op == \"+\":\n                    max_dp[start][end] = max(\n                        max_dp[start][end],\n                        left_max + right_max\n                    )\n                    min_dp[start][end] = min(\n                        min_dp[start][end],\n                        left_min + right_min\n                    )\n\n                else:  # op == \"-\"\n                    max_dp[start][end] = max(\n                        max_dp[start][end],\n                        left_max - right_min\n                    )\n                    min_dp[start][end] = min(\n                        min_dp[start][end],\n                        left_min - right_max\n                    )\n\n    return max_dp[0][n - 1]"
+      },
+      {
+        "type": "code",
+        "content": "print(solution([\"1\", \"-\", \"3\", \"+\", \"5\", \"-\", \"8\"]))\n# 1\n\nprint(solution([\"5\", \"-\", \"3\", \"+\", \"1\", \"+\", \"2\", \"-\", \"4\"]))\n# 3\na = input().split(',')\nprint(solution(a))"
+      },
+      {
+        "type": "code",
+        "content": "memo = {\n    0:1,\n    1:1,\n    2:2\n\n}\n\ndef fibo(n):\n  if n in memo:\n    return memo[n]\n  memo[n] = fibo(n-1) + fibo(n-2)\n  return memo[n]\n\n\nfibo(3)"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "9주차백트래킹",
+    "cells": [
+      {
+        "type": "code",
+        "content": "# 미로 탈출하기 - 백트래킹\n# 입력 형식:\n# 첫 줄: 행 개수 N, 열 개수 M\n# 다음 N줄: 0과 1로 이루어진 미로\n#\n\ndef solve_maze(maze):\n    n = len(maze)\n    m = len(maze[0])\n\n    start = (0, 0)\n    goal = (n - 1, m - 1)\n\n    # 북, 남, 동, 서\n    directions = [\n        (-1, 0),  # 북\n        (1, 0),   # 남\n        (0, 1),   # 동\n        (0, -1)   # 서\n    ]\n\n    visited = [[False] * m for _ in range(n)]\n    path = []\n\n    def backtrack(x, y):\n        # 범위를 벗어나면 이동 불가\n        if x < 0 or x >= n or y < 0 or y >= m:\n            return False\n\n        # 벽이거나 이미 방문한 길이면 이동 불가\n        if maze[x][y] == 1 or visited[x][y]:\n            return False\n\n        # 현재 위치 방문 처리\n        visited[x][y] = True\n        path.append((x, y))\n\n        # 목표 지점 도착\n        if (x, y) == goal:\n            return True\n\n        # 북, 남, 동, 서 순서로 이동 시도\n        for dx, dy in directions:\n            nx = x + dx\n            ny = y + dy\n\n            if backtrack(nx, ny):\n                return True\n\n        # 네 방향 모두 실패하면 이전 위치로 되돌아감\n        path.pop()\n        visited[x][y] = False\n        return False\n\n    if maze[0][0] == 1 or maze[n - 1][m - 1] == 1:\n        return None\n\n    if backtrack(0, 0):\n        return path\n    else:\n        return None\n\n\ndef print_path_on_maze(maze, path):\n    result = [row[:] for row in maze]\n\n    for x, y in path:\n        result[x][y] = \"*\"\n\n    result[0][0] = \"S\"\n    result[len(maze) - 1][len(maze[0]) - 1] = \"E\"\n\n    for row in result:\n        print(\" \".join(map(str, row)))\n\n\nn, m = map(int, input(\"미로의 행과 열을 입력하세요: \").split())\n\nmaze = []\nprint(\"미로를 입력하세요. 길은 0, 벽은 1입니다.\")\n\nfor _ in range(n):\n    row = list(map(int, input().split()))\n    maze.append(row)\n\npath = solve_maze(maze)\n\nif path is None:\n    print(\"탈출 불가능\")\nelse:\n    print(\"탈출 경로:\")\n    for row, col in path:\n        print((col, row))\n\n    print(\"\\n미로 위 경로:\")\n    print_path_on_maze(maze, path)\n\n# 예시:\n# 5 5\n# 0 1 0 0 0\n# 0 1 0 1 0\n# 0 0 0 1 0\n# 1 1 0 0 0\n# 0 0 0 1 0"
+      },
+      {
+        "type": "code",
+        "content": "# 서울시 지도 색칠하기 - 백트래킹\n\nseoul_map = {\n    \"강남구\": [\"광진구\",\"서초구\", \"송파구\", \"성동구\", \"용산구\"], #수정\n    \"강동구\": [\"송파구\", \"광진구\"],\n    \"강북구\": [\"도봉구\", \"노원구\", \"성북구\"],\n    \"강서구\": [\"양천구\", \"영등포구\", \"마포구\"],\n    \"관악구\": [\"동작구\", \"서초구\", \"금천구\", \"구로구\"],\n    \"광진구\": ['강남구', '강동구', '동대문구', '성동구', '송파구', '중랑구'],\n    \"구로구\": [\"양천구\", \"영등포구\", \"동작구\", \"관악구\", \"금천구\"],\n    \"금천구\": [\"구로구\", \"관악구\"],\n    \"노원구\": ['강북구', '도봉구', '성북구', '중랑구'],\n    \"도봉구\": [\"강북구\", \"노원구\"],\n    \"동대문구\": [\"성북구\", \"종로구\", \"성동구\", \"광진구\", \"중랑구\"],\n    \"동작구\": [\"영등포구\", \"구로구\", \"관악구\", \"서초구\", \"용산구\"],\n    \"마포구\": [\"강서구\", \"영등포구\", \"용산구\", \"서대문구\", \"은평구\"],\n    \"서대문구\": [\"은평구\", \"마포구\", \"종로구\", \"중구\"],\n    \"서초구\": [\"동작구\", \"관악구\", \"강남구\", '용산구'],\n    \"성동구\": [\"중구\", \"동대문구\", \"광진구\", \"강남구\", \"용산구\", \"종로구\"],\n    \"성북구\": [\"강북구\", \"노원구\", \"중랑구\", \"동대문구\", \"종로구\"],\n    \"송파구\": [\"강남구\", \"강동구\", \"광진구\"],\n    \"양천구\": [\"강서구\", \"영등포구\", \"구로구\"], #수정함\n    \"영등포구\": [\"강서구\", \"양천구\", \"마포구\", \"용산구\", \"동작구\", \"구로구\"],\n    \"용산구\": [\"마포구\", \"영등포구\", \"동작구\", \"서초구\", \"강남구\", \"성동구\", \"중구\"],\n    \"은평구\": [\"서대문구\", \"마포구\", \"종로구\"],\n    \"종로구\": [\"은평구\", \"서대문구\", \"중구\", \"성북구\", \"동대문구\", \"성동구\"],\n    \"중구\": [\"종로구\", \"서대문구\", \"용산구\", \"성동구\"],\n    \"중랑구\": [\"노원구\", \"성북구\", \"동대문구\", \"광진구\"],\n}\ndistricts = list(seoul_map.keys())\n\n\ndef is_possible(district, color, coloring):\n    \"\"\"현재 district에 color를 칠할 수 있는지 확인\"\"\"\n    for neighbor in seoul_map[district]:\n        if neighbor in coloring and coloring[neighbor] == color:\n            return False\n    return True\n\n\ndef backtracking(index, color_count, coloring):\n    \"\"\"백트래킹으로 각 구에 색상 배정\"\"\"\n    if index == len(districts):\n        return True\n\n    district = districts[index]\n\n    for color in range(1, color_count + 1):\n        if is_possible(district, color, coloring):\n            coloring[district] = color\n\n            if backtracking(index + 1, color_count, coloring):\n                return True\n\n            del coloring[district]\n\n    return False\n\n\ncolor_count = int(input(\"사용할 색상의 개수를 입력하세요: \"))\n\ncoloring = {}\n\nif backtracking(0, color_count, coloring):\n    print(\"\\n지도 색칠 결과\")\n    for district in districts:\n        print(f\"{district}: {coloring[district]}번 색상\")\nelse:\n    print(\"\\n해당 색상 개수로는 서울시 지도를 색칠할 수 없습니다.\")"
+      },
+      {
+        "type": "code",
+        "content": "!apt-get -qq install graphviz fonts-nanum\n!pip -q install graphviz\n!fc-cache -fv > /dev/null"
+      },
+      {
+        "type": "code",
+        "content": "from graphviz import Digraph\nfrom IPython.display import Image, display\n\n# 트리에 표시할 구 10개입력 받기\ndistricts = []\n\ni=0\nwhile i< 10:\n  _ = input(f'{i+1}번쨰 구 입력 -> ').strip()\n  if _ in seoul_map :\n    if _ in districts:\n      print('중복 입력 불가')\n      continue\n    districts.append(_)\n    i += 1\n  else:\n    print(\"존재하지 않는 구입니다. 철자가 올바른지 확인해주세요.\")\n\nMAX_DEPTH = 10\nCOLOR_COUNT = 4\nTARGET_SOLUTIONS = 2\n\nnode_count = 0\nstep_count = 0\nsolutions = []\n\n\ndef make_node_id():\n    global node_count\n    node_count += 1\n    return f\"node_{node_count}\"\n\n\ndef next_step():\n    global step_count\n    step_count += 1\n    return step_count\n\n\ndef is_possible(district, color, coloring):\n    \"\"\"현재 district에 color를 칠할 수 있는지 확인\"\"\"\n    for neighbor in seoul_map[district]:\n        if neighbor in coloring and coloring[neighbor] == color:\n            return False\n    return True\n\n\ndef get_conflict_reason(district, color, coloring):\n    \"\"\"색칠이 불가능한 경우 충돌하는 이웃 구 반환\"\"\"\n    for neighbor in seoul_map[district]:\n        if neighbor in coloring and coloring[neighbor] == color:\n            return neighbor\n    return None\n\n\ndef draw_real_backtracking_tree(graph, parent_id, index, coloring, path):\n    \"\"\"\n    실제 백트래킹 실행 순서를 그린다.\n\n    흐름:\n    1. 가능한 색을 고른다.\n    2. 다음 구로 내려간다.\n    3. 깊이 10에 도달하면 해답을 기록한다.\n    4. 그 뒤 루트에서 새로 시작하지 않고,\n       직전 구로 되돌아가 다음 색을 검사한다.\n    5. 해답 2개를 찾으면 종료한다.\n    \"\"\"\n\n    if len(solutions) >= TARGET_SOLUTIONS:\n        return True\n\n    if index == MAX_DEPTH:\n        solution_number = len(solutions) + 1\n        solution_colors = [color for _, color in path]\n        solutions.append(solution_colors)\n\n        step = next_step()\n        end_id = make_node_id()\n\n        graph.node(\n            end_id,\n            f\"{step}. 해답 {solution_number} 발견\\n깊이 10 도달\",\n            shape=\"box\",\n            style=\"filled\",\n            fillcolor=\"lightblue\"\n        )\n        graph.edge(parent_id, end_id, label=\"해답\")\n\n        # 첫 번째 해답이면 True로 끝내지 않고,\n        # 다시 직전 구로 돌아가 다른 색을 검사하게 한다.\n        if len(solutions) >= TARGET_SOLUTIONS:\n            return True\n        return False\n\n    district = districts[index]\n\n    for color in range(1, COLOR_COUNT + 1):\n        if len(solutions) >= TARGET_SOLUTIONS:\n            return True\n\n        step = next_step()\n        current_id = make_node_id()\n\n        possible = is_possible(district, color, coloring)\n\n        if not possible:\n            conflict = get_conflict_reason(district, color, coloring)\n\n            graph.node(\n                current_id,\n                f\"{step}. {district}\\n{color}번 색 검사\\n불가능\\n{conflict}와 충돌\",\n                shape=\"circle\",\n                style=\"filled\",\n                fillcolor=\"mistyrose\",\n                color=\"red\"\n            )\n            graph.edge(parent_id, current_id, label=\"충돌\")\n            continue\n\n        graph.node(\n            current_id,\n            f\"{step}. {district}\\n{color}번 색 검사\\n가능\\n선택\",\n            shape=\"circle\",\n            style=\"filled\",\n            fillcolor=\"palegreen\"\n        )\n        graph.edge(parent_id, current_id, label=\"선택\")\n\n        coloring[district] = color\n        path.append((district, color))\n\n        finished = draw_real_backtracking_tree(\n            graph,\n            current_id,\n            index + 1,\n            coloring,\n            path\n        )\n\n        if finished:\n            return True\n\n        # 여기서 실제 백트래킹이 일어난다.\n        # 깊이 10까지 갔거나, 아래쪽 탐색이 끝난 뒤\n        # 현재 색을 취소하고 부모 노드로 되돌아간다.\n        back_step = next_step()\n        back_id = make_node_id()\n\n        graph.node(\n            back_id,\n            f\"{back_step}. 백트래킹\\n{district}의 {color}번 색 취소\\n직전 구로 돌아감\",\n            shape=\"box\",\n            style=\"filled\",\n            fillcolor=\"lemonchiffon\"\n        )\n        graph.edge(\n            current_id,\n            back_id,\n            label=\"되돌아감\",\n            style=\"dashed\"\n        )\n\n        path.pop()\n        del coloring[district]\n\n    return False\n\n\ngraph = Digraph(\"Real Backtracking Tree\", format=\"png\")\n\ngraph.attr(rankdir=\"TB\")\ngraph.attr(size=\"18,24\")\ngraph.attr(ratio=\"compress\")\ngraph.attr(ordering=\"out\")\ngraph.attr(\"node\", fontname=\"NanumGothic\", fontsize=\"10\")\ngraph.attr(\"edge\", fontname=\"NanumGothic\", fontsize=\"9\")\n\nroot_id = \"root\"\ngraph.node(\n    root_id,\n    \"ROOT\",\n    shape=\"circle\",\n    style=\"filled\",\n    fillcolor=\"white\"\n)\n\ndraw_real_backtracking_tree(graph, root_id, 0, {}, [])\n\noutput_path = graph.render(\n    \"seoul_real_backtracking_tree\",\n    format=\"png\",\n    cleanup=True\n)\n\ndisplay(Image(filename=output_path))\n\nprint(\"시각화 완료:\", output_path)\n\nfor i, solution in enumerate(solutions, start=1):\n    print(f\"\\n경로 {i}\")\n    for district, color in zip(districts, solution):\n        print(f\"{district}: {color}번 색\")"
+      },
+      {
+        "type": "code",
+        "content": "from graphviz import Digraph\nfrom IPython.display import Image, display, SVG\n\nseoul_map = {\n    \"강남구\": [\"광진구\",\"서초구\", \"송파구\", \"성동구\", \"용산구\"], #수정\n    \"강동구\": [\"송파구\", \"광진구\"],\n    \"강북구\": [\"도봉구\", \"노원구\", \"성북구\"],\n    \"강서구\": [\"양천구\", \"영등포구\", \"마포구\"],\n    \"관악구\": [\"동작구\", \"서초구\", \"금천구\", \"구로구\"],\n    \"광진구\": ['강남구', '강동구', '동대문구', '성동구', '송파구', '중랑구'],\n    \"구로구\": [\"양천구\", \"영등포구\", \"동작구\", \"관악구\", \"금천구\"],\n    \"금천구\": [\"구로구\", \"관악구\"],\n    \"노원구\": ['강북구', '도봉구', '성북구', '중랑구'],\n    \"도봉구\": [\"강북구\", \"노원구\"],\n    \"동대문구\": [\"성북구\", \"종로구\", \"성동구\", \"광진구\", \"중랑구\"],\n    \"동작구\": [\"영등포구\", \"구로구\", \"관악구\", \"서초구\", \"용산구\"],\n    \"마포구\": [\"강서구\", \"영등포구\", \"용산구\", \"서대문구\", \"은평구\"],\n    \"서대문구\": [\"은평구\", \"마포구\", \"종로구\", \"중구\"],\n    \"서초구\": [\"동작구\", \"관악구\", \"강남구\", '용산구'],\n    \"성동구\": [\"중구\", \"동대문구\", \"광진구\", \"강남구\", \"용산구\", \"종로구\"],\n    \"성북구\": [\"강북구\", \"노원구\", \"중랑구\", \"동대문구\", \"종로구\"],\n    \"송파구\": [\"강남구\", \"강동구\", \"광진구\"],\n    \"양천구\": [\"강서구\", \"영등포구\", \"구로구\"], #수정함\n    \"영등포구\": [\"강서구\", \"양천구\", \"마포구\", \"용산구\", \"동작구\", \"구로구\"],\n    \"용산구\": [\"마포구\", \"영등포구\", \"동작구\", \"서초구\", \"강남구\", \"성동구\", \"중구\"],\n    \"은평구\": [\"서대문구\", \"마포구\", \"종로구\"],\n    \"종로구\": [\"은평구\", \"서대문구\", \"중구\", \"성북구\", \"동대문구\", \"성동구\"],\n    \"중구\": [\"종로구\", \"서대문구\", \"용산구\", \"성동구\"],\n    \"중랑구\": [\"노원구\", \"성북구\", \"동대문구\", \"광진구\"],\n}\n\ndistricts = list(seoul_map.keys())\n\nMAX_DEPTH = 25\nCOLOR_COUNT = 4\nTARGET_SOLUTIONS = 5\n\nnode_count = 0\nstep_count = 0\nsolutions = []\n\n\ndef make_node_id():\n    global node_count\n    node_count += 1\n    return f\"node_{node_count}\"\n\n\ndef next_step():\n    global step_count\n    step_count += 1\n    return step_count\n\n\ndef is_possible(district, color, coloring):\n    \"\"\"현재 district에 color를 칠할 수 있는지 확인\"\"\"\n    for neighbor in seoul_map[district]:\n        if neighbor in coloring and coloring[neighbor] == color:\n            return False\n    return True\n\n\ndef get_conflict_reason(district, color, coloring):\n    \"\"\"색칠이 불가능한 경우 충돌하는 이웃 구 반환\"\"\"\n    for neighbor in seoul_map[district]:\n        if neighbor in coloring and coloring[neighbor] == color:\n            return neighbor\n    return None\n\n\ndef draw_real_backtracking_tree(graph, parent_id, index, coloring, path):\n    \"\"\"\n    실제 백트래킹 실행 순서를 그린다.\n\n    흐름:\n    1. 가능한 색을 고른다.\n    2. 다음 구로 내려간다.\n    3. 깊이 10에 도달하면 해답을 기록한다.\n    4. 그 뒤 루트에서 새로 시작하지 않고,\n       직전 구로 되돌아가 다음 색을 검사한다.\n    5. 해답 2개를 찾으면 종료한다.\n    \"\"\"\n\n    if len(solutions) >= TARGET_SOLUTIONS:\n        return True\n\n    if index == MAX_DEPTH:\n        solution_number = len(solutions) + 1\n        solution_colors = [color for _, color in path]\n        solutions.append(solution_colors)\n\n        step = next_step()\n        end_id = make_node_id()\n\n        graph.node(\n            end_id,\n            f\"{step}. 해답 {solution_number} 발견\\n깊이 10 도달\",\n            shape=\"box\",\n            style=\"filled\",\n            fillcolor=\"lightblue\"\n        )\n        graph.edge(parent_id, end_id, label=\"해답\")\n\n        # 첫 번째 해답이면 True로 끝내지 않고,\n        # 다시 직전 구로 돌아가 다른 색을 검사하게 한다.\n        if len(solutions) >= TARGET_SOLUTIONS:\n            return True\n        return False\n\n    district = districts[index]\n\n    for color in range(1, COLOR_COUNT + 1):\n        if len(solutions) >= TARGET_SOLUTIONS:\n            return True\n\n        step = next_step()\n        current_id = make_node_id()\n\n        possible = is_possible(district, color, coloring)\n\n        if not possible:\n            conflict = get_conflict_reason(district, color, coloring)\n\n            graph.node(\n                current_id,\n                f\"{step}. {district}\\n{color}번 색 검사\\n불가능\\n{conflict}와 충돌\",\n                shape=\"circle\",\n                style=\"filled\",\n                fillcolor=\"mistyrose\",\n                color=\"red\"\n            )\n            graph.edge(parent_id, current_id, label=\"충돌\")\n            continue\n\n        graph.node(\n            current_id,\n            f\"{step}. {district}\\n{color}번 색 검사\\n가능\\n선택\",\n            shape=\"circle\",\n            style=\"filled\",\n            fillcolor=\"palegreen\"\n        )\n        graph.edge(parent_id, current_id, label=\"선택\")\n\n        coloring[district] = color\n        path.append((district, color))\n\n        finished = draw_real_backtracking_tree(\n            graph,\n            current_id,\n            index + 1,\n            coloring,\n            path\n        )\n\n        if finished:\n            return True\n\n        # 여기서 실제 백트래킹이 일어난다.\n        # 깊이 10까지 갔거나, 아래쪽 탐색이 끝난 뒤\n        # 현재 색을 취소하고 부모 노드로 되돌아간다.\n        back_step = next_step()\n        back_id = make_node_id()\n\n        graph.node(\n            back_id,\n            f\"{back_step}. 백트래킹\\n{district}의 {color}번 색 취소\\n직전 구로 돌아감\",\n            shape=\"box\",\n            style=\"filled\",\n            fillcolor=\"lemonchiffon\"\n        )\n        graph.edge(\n            current_id,\n            back_id,\n            label=\"되돌아감\",\n            style=\"dashed\"\n        )\n\n        path.pop()\n        del coloring[district]\n\n    return False\n\n\ngraph = Digraph(\"Real Backtracking Tree\", format=\"png\")\n\ngraph.attr(rankdir=\"TB\")\ngraph.attr(size=\"18,24\")\ngraph.attr(ratio=\"compress\")\ngraph.attr(ordering=\"out\")\ngraph.attr(\"node\", fontname=\"NanumGothic\", fontsize=\"10\")\ngraph.attr(\"edge\", fontname=\"NanumGothic\", fontsize=\"9\")\n\nroot_id = \"root\"\ngraph.node(\n    root_id,\n    \"ROOT\",\n    shape=\"circle\",\n    style=\"filled\",\n    fillcolor=\"white\"\n)\n\ndraw_real_backtracking_tree(graph, root_id, 0, {}, [])\n\noutput_path = graph.render(\n    \"seoul_real_backtracking_tree\",\n    format=\"svg\",\n    cleanup=True\n)\n\ndisplay(SVG(filename=output_path))\n\nprint(\"시각화 완료:\", output_path)\n\nfor i, solution in enumerate(solutions, start=1):\n    print(f\"\\n경로 {i}\")\n    for district, color in zip(districts, solution):\n        print(f\"{district}: {color}번 색\")"
+      }
+    ]
+  }
+]
