@@ -1,12 +1,12 @@
 :root {
-  --bg-color: #0f172a; /* Deep slate */
-  --panel-bg: rgba(255, 255, 255, 0.03);
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent: #38bdf8; /* Light blue accent */
-  --accent-hover: #0284c7;
-  --code-bg: #1e293b;
+  --bg-color: #121212;
+  --panel-bg: rgba(255, 255, 255, 0.05);
+  --panel-border: rgba(255, 255, 255, 0.15);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent: #ffffff;
+  --accent-hover: #e0e0e0;
+  --code-bg: #1a1a1a;
 }
 
 body {
@@ -38,9 +38,9 @@ body {
   background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #333333;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #555555;
 }

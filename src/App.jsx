@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { weeksData } from './data';
 import './App.css';
 
 function App() {
   const [activeWeek, setActiveWeek] = useState(weeksData[0]);
   const [pyodideReady, setPyodideReady] = useState(false);
-  const [output, setOutput] = useState('');
-  const [isRunning, setIsRunning] = useState(false);
+  const [outputs, setOutputs] = useState({});
+  const [runningKey, setRunningKey] = useState(null);
   const [pdfOpen, setPdfOpen] = useState(false);
-  const [fetchedCode, setFetchedCode] = useState('');
 
   // Reflections state synced with localStorage
   const [reflections, setReflections] = useState(() => {
@@ -25,6 +26,7 @@ function App() {
   });
 
   const pyodideRef = useRef(null);
+  const outputAccRef = useRef('');
 
   useEffect(() => {
     async function loadPyodideEngine() {
@@ -33,9 +35,6 @@ function App() {
           indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/"
         });
         pyodideRef.current = pyodide;
-        pyodide.setStdout({ batched: (msg) => {
-          setOutput(prev => prev + msg + "\\n");
-        }});
         setPyodideReady(true);
       } catch (err) {
         console.error("Pyodide load failed", err);
@@ -48,30 +47,30 @@ function App() {
     localStorage.setItem('reflections', JSON.stringify(reflections));
   }, [reflections]);
 
-  // Fetch code if fetchCodeUrl is provided
-  useEffect(() => {
-    if (activeWeek !== 'overall' && activeWeek.fetchCodeUrl) {
-      fetch(activeWeek.fetchCodeUrl)
-        .then(res => res.text())
-        .then(text => setFetchedCode(text))
-        .catch(err => console.error("Failed to fetch code", err));
-    } else {
-      setFetchedCode('');
-    }
-  }, [activeWeek]);
-
-  const handleRunCode = async (codeToRun) => {
+  const handleRunCode = async (codeToRun, weekId, codeIndex) => {
     if (!pyodideRef.current) return;
-    setIsRunning(true);
-    setOutput('실행 중...\\n');
-    setOutput(''); 
+    const key = `${weekId}-${codeIndex}`;
+    setRunningKey(key);
+    outputAccRef.current = '';
+
+    pyodideRef.current.setStdout({ batched: (msg) => {
+      outputAccRef.current += msg + "\n";
+      setOutputs(prev => ({
+        ...prev,
+        [key]: outputAccRef.current
+      }));
+    }});
     
     try {
       await pyodideRef.current.runPythonAsync(codeToRun);
     } catch (err) {
-      setOutput(prev => prev + "\\n[에러 발생]: " + err.message);
+      outputAccRef.current += "\n[에러 발생]: " + err.message;
+      setOutputs(prev => ({
+        ...prev,
+        [key]: outputAccRef.current
+      }));
     } finally {
-      setIsRunning(false);
+      setRunningKey(null);
     }
   };
 
@@ -81,8 +80,6 @@ function App() {
       [id]: value
     }));
   };
-
-  const currentCode = fetchedCode || (activeWeek !== 'overall' ? activeWeek.code : '');
 
   return (
     <div className="app-container">
@@ -105,8 +102,8 @@ function App() {
               className={`week-btn ${activeWeek?.id === week.id ? 'active' : ''}`}
               onClick={() => {
                 setActiveWeek(week);
-                setOutput('');
-                setPdfOpen(false); // Reset PDF state on tab change
+                setOutputs({});
+                setPdfOpen(false);
               }}
             >
               {week.title}
@@ -117,18 +114,18 @@ function App() {
             className={`week-btn ${activeWeek === 'overall' ? 'active' : ''}`}
             onClick={() => {
               setActiveWeek('overall');
-              setOutput('');
+              setOutputs({});
               setPdfOpen(false);
             }}
           >
-            🌟 전체 회고 (Overall)
+            전체 회고 (Overall)
           </button>
         </aside>
 
         <main className="content-panel">
           {activeWeek === 'overall' ? (
             <div className="overall-section animation-fade">
-              <h2>🌟 1학기 알고리즘 통합 회고</h2>
+              <h2>1학기 알고리즘 통합 회고</h2>
               <div className="reflection-container">
                 <label className="reflection-label">통합적으로 느낀 점 및 개선 방향</label>
                 <textarea 
@@ -144,13 +141,13 @@ function App() {
               <h2>{activeWeek.title}</h2>
               
               <div>
-                <span className="role-tag">🎯 Role: {activeWeek.role}</span>
+                <span className="role-tag">Role: {activeWeek.role}</span>
               </div>
 
               {activeWeek.pdf && (
                 <div className="pdf-accordion">
                   <div className="pdf-header" onClick={() => setPdfOpen(!pdfOpen)}>
-                    <span>📖 강의 자료 (PDF) {pdfOpen ? '▲' : '▼'}</span>
+                    <span>강의 자료 (PDF) {pdfOpen ? '▲' : '▼'}</span>
                     <a 
                       href={`/pdfs/${activeWeek.pdf}`} 
                       download 
@@ -177,15 +174,15 @@ function App() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="download-btn"
-                    style={{ display: 'inline-block', backgroundColor: '#818cf8', width: '100%', textAlign: 'center', padding: '1rem' }}
+                    style={{ display: 'inline-block', width: '100%', textAlign: 'center', padding: '1rem', boxSizing: 'border-box' }}
                   >
-                    🎒 배낭 문제(Knapsack) 시각화 도구 열기 🚀
+                    배낭 문제 (Knapsack) 시각화 도구 열기
                   </a>
                 </div>
               )}
               
               <div className="reflection-container">
-                <label className="reflection-label">💡 주차별 느낀 점 (수정 가능)</label>
+                <label className="reflection-label">주차별 느낀 점 (수정 가능)</label>
                 <textarea 
                   className="reflection-input"
                   value={reflections[activeWeek.id]}
@@ -193,28 +190,56 @@ function App() {
                 />
               </div>
 
-              <div className="code-container">
-                <div className="code-header">
-                  <span>Python Code</span>
-                  <button 
-                    className="run-btn"
-                    onClick={() => handleRunCode(currentCode)}
-                    disabled={!pyodideReady || isRunning}
-                  >
-                    {isRunning ? 'Running...' : 'Run Code ▶'}
-                  </button>
-                </div>
-                <pre className="code-block">
-                  <code>{currentCode}</code>
-                </pre>
-                
-                {output && (
-                  <div className="output-panel">
-                    <strong>실행 결과:</strong><br />
-                    {output}
+              {activeWeek.codes && activeWeek.codes.map((codeItem, index) => {
+                const key = `${activeWeek.id}-${index}`;
+                const isRunning = runningKey === key;
+                const isNotRunnable = codeItem.runnable === false;
+                return (
+                  <div className="code-container" key={index}>
+                    <div className="code-header">
+                      <span className="code-title">
+                        <span className="code-index">{index + 1}</span>
+                        {codeItem.title}
+                      </span>
+                      {isNotRunnable ? (
+                        <span className="not-runnable-badge">코드 참조용 (웹 실행 불가)</span>
+                      ) : (
+                        <button 
+                          className="run-btn"
+                          onClick={() => handleRunCode(codeItem.code, activeWeek.id, index)}
+                          disabled={!pyodideReady || runningKey !== null}
+                        >
+                          {isRunning ? 'Running...' : 'Run Code ▶'}
+                        </button>
+                      )}
+                    </div>
+                    <div className="code-block-wrapper">
+                      <SyntaxHighlighter 
+                        language="python" 
+                        style={vscDarkPlus} 
+                        customStyle={{ 
+                          margin: 0, 
+                          borderRadius: '0 0 8px 8px', 
+                          border: '1px solid var(--panel-border)', 
+                          borderTop: 'none', 
+                          background: 'var(--code-bg)',
+                          fontSize: '0.9rem',
+                          fontFamily: "'Fira Code', 'Consolas', monospace"
+                        }}
+                      >
+                        {codeItem.code}
+                      </SyntaxHighlighter>
+                    </div>
+                    
+                    {outputs[key] && (
+                      <div className="output-panel">
+                        <strong>실행 결과:</strong><br />
+                        {outputs[key]}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })}
             </div>
           )}
         </main>
