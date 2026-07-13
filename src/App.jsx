@@ -11,6 +11,11 @@ function App() {
   const [runningKey, setRunningKey] = useState(null);
   const [pdfOpen, setPdfOpen] = useState(false);
 
+  // GitHub Integration States
+  const [showSettings, setShowSettings] = useState(false);
+  const [githubToken, setGithubToken] = useState(() => localStorage.getItem('githubToken') || '');
+  const [isSaving, setIsSaving] = useState(false);
+
   // Reflections state synced with localStorage
   const [reflections, setReflections] = useState(() => {
     const saved = localStorage.getItem('reflections');
@@ -27,6 +32,23 @@ function App() {
 
   const pyodideRef = useRef(null);
   const outputAccRef = useRef('');
+
+  // Fetch initial reflections from GitHub to stay synced with remote
+  useEffect(() => {
+    async function fetchReflections() {
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/bug038763-crypto/2026_1_DataStructure_-Algorithm/main/public/reflections.json?t=' + new Date().getTime());
+        if (res.ok) {
+          const data = await res.json();
+          setReflections(data);
+          localStorage.setItem('reflections', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error("Failed to fetch reflections from GitHub:", err);
+      }
+    }
+    fetchReflections();
+  }, []);
 
   useEffect(() => {
     async function loadPyodideEngine() {
@@ -46,6 +68,60 @@ function App() {
   useEffect(() => {
     localStorage.setItem('reflections', JSON.stringify(reflections));
   }, [reflections]);
+
+  const saveToGitHub = async () => {
+    if (!githubToken) {
+      alert("GitHub Token이 설정되어 있지 않습니다. 우측 상단의 설정(⚙️)을 눌러 토큰을 입력해주세요.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const owner = 'bug038763-crypto';
+      const repo = '2026_1_DataStructure_-Algorithm';
+      const path = 'public/reflections.json';
+      
+      const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        headers: {
+          'Authorization': `token ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      let sha = null;
+      if (getRes.ok) {
+        const getData = await getRes.json();
+        sha = getData.sha;
+      }
+      
+      const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(reflections, null, 2))));
+      
+      const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: "Update reflections via web app",
+          content: contentBase64,
+          sha: sha
+        })
+      });
+      
+      if (putRes.ok) {
+        alert("성공적으로 GitHub에 저장되었습니다!");
+      } else {
+        const errorData = await putRes.json();
+        alert(`저장 실패: ${errorData.message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleRunCode = async (codeToRun, weekId, codeIndex) => {
     if (!pyodideRef.current) return;
@@ -90,9 +166,44 @@ function App() {
       )}
       
       <header>
-        <h1>2026 1학기 알고리즘 돌아보기</h1>
-        <a href="https://github.com/bug038763-crypto/2026_1_DataStructure_-Algorithm" className="github-btn" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        <div className="header-left">
+          <h1>2026 1학기 알고리즘 돌아보기</h1>
+        </div>
+        <div className="header-right">
+          <button className="save-btn" onClick={saveToGitHub} disabled={isSaving}>
+            {isSaving ? "저장 중..." : "GitHub에 저장"}
+          </button>
+          <button className="settings-btn" onClick={() => setShowSettings(true)} title="설정">⚙️</button>
+          <a href="https://github.com/bug038763-crypto/2026_1_DataStructure_-Algorithm" className="github-btn" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        </div>
       </header>
+
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>설정</h3>
+            <div className="form-group">
+              <label>GitHub Personal Access Token (PAT)</label>
+              <input 
+                type="password" 
+                value={githubToken} 
+                onChange={(e) => setGithubToken(e.target.value)}
+                placeholder="ghp_..."
+                className="token-input"
+              />
+              <p className="help-text">이 토큰은 브라우저에만 안전하게 보관되며, 깃허브 저장소에 감상을 덮어쓸 때 사용됩니다. (repo 권한 필수)</p>
+            </div>
+            <div className="modal-actions">
+              <button className="close-btn" onClick={() => setShowSettings(false)}>닫기</button>
+              <button className="apply-btn" onClick={() => {
+                localStorage.setItem('githubToken', githubToken);
+                setShowSettings(false);
+                alert("토큰이 브라우저에 저장되었습니다.");
+              }}>적용</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="main-content">
         <aside className="sidebar">
