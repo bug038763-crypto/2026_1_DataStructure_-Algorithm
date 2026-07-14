@@ -123,31 +123,50 @@ function App() {
     }
   };
 
+  const outputRefs = useRef({});
+
   const handleRunCode = async (codeToRun, weekId, codeIndex) => {
     if (!pyodideRef.current) return;
     const key = `${weekId}-${codeIndex}`;
     setRunningKey(key);
     outputAccRef.current = '';
+    // Clear previous output immediately
+    setOutputs(prev => ({ ...prev, [key]: undefined }));
 
     pyodideRef.current.setStdout({ batched: (msg) => {
       outputAccRef.current += msg + "\n";
-      setOutputs(prev => ({
-        ...prev,
-        [key]: outputAccRef.current
-      }));
     }});
     
+    // Random minimum delay between 0.3s and 0.7s for natural feel
+    const minDelay = 300 + Math.random() * 400;
+    const startTime = Date.now();
+
     try {
       await pyodideRef.current.runPythonAsync(codeToRun);
     } catch (err) {
       outputAccRef.current += "\n[에러 발생]: " + err.message;
-      setOutputs(prev => ({
-        ...prev,
-        [key]: outputAccRef.current
-      }));
-    } finally {
-      setRunningKey(null);
     }
+
+    // Enforce minimum execution time for perceived feedback
+    const elapsed = Date.now() - startTime;
+    if (elapsed < minDelay) {
+      await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+    }
+
+    // Show results and scroll to output
+    setOutputs(prev => ({
+      ...prev,
+      [key]: outputAccRef.current
+    }));
+    setRunningKey(null);
+
+    // Auto-scroll to output after render
+    setTimeout(() => {
+      const el = outputRefs.current[key];
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 50);
   };
 
   const handleReflectionChange = (id, value) => {
@@ -316,11 +335,18 @@ function App() {
                         <span className="not-runnable-badge">코드 참조용 (웹 실행 불가)</span>
                       ) : (
                         <button 
-                          className="run-btn"
+                          className={`run-btn ${isRunning ? 'run-btn--loading' : ''}`}
                           onClick={() => handleRunCode(codeItem.code, activeWeek.id, index)}
                           disabled={!pyodideReady || runningKey !== null}
                         >
-                          {isRunning ? 'Running...' : 'Run Code ▶'}
+                          {isRunning ? (
+                            <>
+                              <svg className="run-btn-spinner" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="50 20" strokeLinecap="round" />
+                              </svg>
+                              Running...
+                            </>
+                          ) : 'Run Code ▶'}
                         </button>
                       )}
                     </div>
@@ -343,7 +369,7 @@ function App() {
                     </div>
                     
                     {outputs[key] && (
-                      <div className="output-panel">
+                      <div className="output-panel" ref={el => outputRefs.current[key] = el}>
                         <strong>실행 결과:</strong><br />
                         {outputs[key]}
                       </div>
