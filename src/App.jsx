@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { weeksData } from './data';
+import { practiceData } from './practiceData';
 import './App.css';
 
 function App() {
@@ -264,6 +265,81 @@ function App() {
                   onChange={(e) => handleReflectionChange('overall', e.target.value)}
                   placeholder="이번 학기 알고리즘 수업을 들으며 느낀 점을 작성해주세요..."
                 />
+              </div>
+
+              <div className="practice-problems">
+                <h2 className="practice-main-title">연습문제 모음</h2>
+                {practiceData.map((section, sIdx) => (
+                  <div className="practice-section" key={sIdx}>
+                    <h3 className="practice-section-title">{section.section}</h3>
+                    {section.problems.map((prob, pIdx) => (
+                      <div className="practice-item" key={pIdx}>
+                        <div className="practice-question">
+                          <span className="practice-q-number">{pIdx + 1}</span>
+                          <span className="practice-q-text">{prob.question}</span>
+                        </div>
+                        <div className="practice-answers">
+                          {prob.answers.map((ans, aIdx) => {
+                            const key = `practice-${sIdx}-${pIdx}-${aIdx}`;
+                            const isRunning = runningKey === key;
+                            return (
+                              <div className="practice-answer" key={aIdx}>
+                                {ans.type === 'code' ? (
+                                  <div className="code-container" style={{ marginTop: 0 }}>
+                                    <div className="code-header">
+                                      <span className="code-title">코드 답변</span>
+                                      <button 
+                                        className={`run-btn ${isRunning ? 'run-btn--loading' : ''}`}
+                                        onClick={() => handleRunCode(ans.content, `practice-${sIdx}-${pIdx}`, aIdx)}
+                                        disabled={!pyodideReady || runningKey !== null}
+                                      >
+                                        {isRunning ? (
+                                          <>
+                                            Running...
+                                            <svg className="run-btn-spinner" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="50 20" strokeLinecap="round" />
+                                            </svg>
+                                          </>
+                                        ) : 'Run Code ▶'}
+                                      </button>
+                                    </div>
+                                    <div className="code-block-wrapper">
+                                      <SyntaxHighlighter
+                                        language="python"
+                                        style={vscDarkPlus}
+                                        customStyle={{
+                                          margin: 0,
+                                          borderRadius: '0 0 8px 8px',
+                                          border: '1px solid var(--panel-border)',
+                                          borderTop: 'none',
+                                          background: 'var(--code-bg)',
+                                          fontSize: '0.9rem',
+                                          fontFamily: "'Fira Code', 'Consolas', monospace"
+                                        }}
+                                      >
+                                        {ans.content}
+                                      </SyntaxHighlighter>
+                                    </div>
+                                    {outputs[key] && (
+                                      <div className="output-panel" ref={el => outputRefs.current[key] = el}>
+                                        <strong>실행 결과:</strong><br />
+                                        {outputs[key]}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="practice-text-answer">
+                                    {ans.content}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
