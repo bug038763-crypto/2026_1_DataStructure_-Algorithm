@@ -248,9 +248,9 @@ header h1 {
 }
 
 .run-btn {
-  background: #4b5563;
-  color: #fff;
-  border: none;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #d4d4d8;
   padding: 0.4rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -259,7 +259,7 @@ header h1 {
 }
 
 .run-btn:hover {
-  background: #6b7280;
+  background: #e5e5e5;
 }
 
 .run-btn:disabled {
@@ -271,8 +271,9 @@ header h1 {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: #334155 !important;
-  color: #94a3b8 !important;
+  background: #525252 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
   cursor: wait !important;
 }
 
